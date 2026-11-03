@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Editorial Portfolio
 
-## Getting Started
+A single-page developer portfolio with a retro-newspaper / Swiss editorial direction, built with Next.js (App Router), TypeScript, Tailwind CSS v4 and GSAP.
 
-First, run the development server:
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Edit content
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Everything on the page is driven by one typed file: `src/data/portfolio.ts` (types in `src/types/portfolio.ts`). Values marked `TODO` are placeholders.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `personalInfo` – name, title, headline lines, intro, email, location, availability, ticker phrases.
+- `about` – headline, paragraphs, pull quote, facts. Add `metrics: [{ value, label, note }]` to render the oversized number block instead of the quote.
+- `experience`, `skills`, `projects`, `education`, `socialLinks`, `contact`.
 
-## Learn More
+Links set to `null` (resume, project live/GitHub URLs, social profiles) are hidden rather than rendered as dead links.
 
-To learn more about Next.js, take a look at the following resources:
+## Images
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Portrait: put a transparent PNG/WebP in `public/images/portrait/` and set `personalInfo.profileImage`.
+- Projects: put screenshots in `public/images/projects/` and set `projects[n].image`; cards fall back to a CSS interface placeholder.
+- Resume: put a PDF in `public/resume/` and set `personalInfo.resumeUrl`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Structure
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/            layout, page, global styles and theme tokens
+  components/
+    layout/       Header, MobileMenu, ThemeToggle, Footer
+    sections/     Home, About, Experience, Skills, Projects, Education, Contact
+    ui/           editorial primitives (SectionHeading, EditorialButton, ProjectCard, ...)
+    animations/   TextReveal, ScrollReveal, ImageReveal
+  data/           portfolio content
+  lib/            GSAP setup and utilities
+```
