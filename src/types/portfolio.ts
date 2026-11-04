@@ -76,6 +76,8 @@ export interface ExperienceItem {
   role: string;
   company: string;
   companyUrl?: string | null;
+  /** Optional square/wordmark shown beside the company name. */
+  companyLogo?: ImageAsset | null;
   startDate: string;
   endDate: string | "Present";
   employmentType: EmploymentType;
@@ -122,7 +124,7 @@ export interface Project {
   };
 }
 
-export type EducationStatus = "Completed" | "In progress" | "Expected";
+export type EducationStatus = "Completed" | "In progress" | "Ongoing" | "Expected";
 
 export interface EducationItem {
   id: string;
@@ -140,7 +142,7 @@ export interface EducationItem {
 }
 
 export interface SocialLink {
-  id: "github" | "linkedin" | "x" | "dribbble" | "website" | "other";
+  id: "github" | "linkedin" | "facebook" | "x" | "dribbble" | "website" | "other";
   label: string;
   /** `null` hides the link everywhere. */
   href: string | null;

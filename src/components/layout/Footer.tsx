@@ -1,118 +1,169 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Lightbulb, PenTool, Target } from "lucide-react";
 import { navigation, personalInfo, socialLinks } from "@/data/portfolio";
 import { BackToTop } from "@/components/layout/BackToTop";
 import { CopyrightYear } from "@/components/layout/CopyrightYear";
+import { FooterNewsletter } from "@/components/layout/FooterNewsletter";
 import { mailto } from "@/lib/utils";
 
-const linkClass =
-  "link-underline inline-flex items-center gap-1.5 text-sm text-white/75 transition-colors duration-300 hover:text-white";
+function brandLabel(name: string, shortName: string) {
+  const placeholder = /name/i.test(shortName) || shortName.trim().length < 2;
+  if (!placeholder) return shortName;
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return parts[0] ?? name;
+  return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+}
+
+const cellLink =
+  "group flex items-center justify-between gap-3 px-4 py-3.5 text-sm font-medium transition-colors hover:bg-foreground hover:text-background";
 
 export function Footer() {
   const email = personalInfo.email;
-  const emailHref = mailto(email);
+  const emailHref = mailto(email, "Project inquiry");
+  const projectHref = emailHref ?? "#contact";
   const socials = socialLinks.filter((s) => s.href);
+  const brand = brandLabel(personalInfo.name, personalInfo.shortName);
+  const footerNavIds = ["projects", "about", "experience", "contact"] as const;
+  const footerNav = footerNavIds
+    .map((id) => navigation.find((item) => item.id === id))
+    .filter((item): item is (typeof navigation)[number] => Boolean(item));
 
   return (
-    <footer className="bg-[#0d0d0d] text-[#f5f5f3] [padding-bottom:env(safe-area-inset-bottom)]">
-      <div className="container-editorial">
-        <div className="grid gap-12 border-b border-white/10 py-16 sm:grid-cols-2 lg:grid-cols-12 lg:py-20">
-          {/* Column 1 */}
-          <div className="lg:col-span-5">
-            <div className="flex items-center gap-3">
-              <span aria-hidden="true" className="block size-2.5 bg-accent" />
-              <span className="eyebrow text-white/55">
-                {personalInfo.edition.volume} · {personalInfo.edition.label}
-              </span>
-            </div>
-            <p className="font-display mt-6 text-[clamp(2.5rem,5vw,4rem)] leading-[0.9] font-black uppercase">
-              {personalInfo.name}
-            </p>
-            <p className="mt-3 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-accent">
-              {personalInfo.title}
-            </p>
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/65">
-              {personalInfo.tagline} {personalInfo.availability}.
-            </p>
-          </div>
+    <footer className="border-t border-foreground bg-background text-foreground pb-[env(safe-area-inset-bottom)]">
+      <div className="container-editorial py-10 sm:py-12 lg:py-14">
+        {/* Start a project */}
+        <a
+          href={projectHref}
+          className="group mb-6 flex items-center justify-between gap-4 sm:mb-8"
+        >
+          <span className="font-display text-[clamp(1.75rem,6vw,4.5rem)] leading-none font-black uppercase tracking-tight">
+            Start a project
+          </span>
+          <span
+            aria-hidden="true"
+            className="inline-flex size-12 shrink-0 items-center justify-center bg-accent text-accent-foreground transition-transform duration-300 ease-editorial group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:size-14 lg:size-16"
+          >
+            <ArrowUpRight className="size-6 sm:size-7" strokeWidth={2.25} />
+          </span>
+        </a>
 
-          {/* Column 2 */}
-          <nav aria-label="Footer" className="lg:col-span-2">
-            <h2 className="eyebrow text-white/55">Contents</h2>
-            <ul className="mt-5 flex flex-col gap-2.5">
-              {navigation.map((item) => (
-                <li key={item.id}>
-                  <a href={item.href} className={linkClass}>
-                    <span className="font-mono text-[0.6rem] text-white/40">{item.number}</span>
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Column 3 */}
-          <div className="lg:col-span-2">
-            <h2 className="eyebrow text-white/55">Elsewhere</h2>
-            {socials.length ? (
-              <ul className="mt-5 flex flex-col gap-2.5">
-                {socials.map((s) => (
-                  <li key={s.id}>
-                    <a
-                      href={s.href as string}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={linkClass}
+        {/* Reference-style grid */}
+        <div className="border border-foreground">
+          <div className="grid lg:grid-cols-12">
+            {/* Brand column */}
+            <div className="flex min-h-56 flex-col justify-between gap-10 border-b border-foreground bg-accent p-5 text-accent-foreground sm:p-6 lg:col-span-3 lg:row-span-2 lg:min-h-0 lg:border-r lg:border-b-0">
+              <p className="font-display text-[clamp(2.35rem,4.5vw,3.5rem)] leading-[0.9] font-black tracking-tight text-accent-foreground uppercase">
+                {brand}
+              </p>
+              <ul className="flex items-center gap-3" aria-label="Focus areas">
+                {[
+                  { Icon: PenTool, label: "Design craft" },
+                  { Icon: Lightbulb, label: "Ideas" },
+                  { Icon: Target, label: "Outcomes" },
+                ].map(({ Icon, label }) => (
+                  <li key={label}>
+                    <span
+                      title={label}
+                      className="inline-flex size-12 items-center justify-center text-accent-foreground sm:size-14"
                     >
-                      {s.label}
-                      <ArrowUpRight aria-hidden="true" className="size-3.5" />
-                    </a>
+                      <Icon aria-hidden="true" className="size-6 sm:size-7" strokeWidth={1.6} />
+                      <span className="sr-only">{label}</span>
+                    </span>
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p className="mt-5 text-sm text-white/55">Links coming soon.</p>
-            )}
-          </div>
+            </div>
 
-          {/* Column 4 */}
-          <div className="lg:col-span-3">
-            <h2 className="eyebrow text-white/55">Contact</h2>
-            <ul className="mt-5 flex flex-col gap-2.5">
+            {/* Nav + socials + stay connected */}
+            <div className="grid border-b border-foreground sm:grid-cols-2 lg:col-span-9 lg:grid-cols-3">
+              <nav aria-label="Footer" className="border-b border-foreground sm:border-r sm:border-b-0">
+                <ul>
+                  {footerNav.map((item, index) => (
+                    <li
+                      key={item.id}
+                      className={
+                        index < footerNav.length - 1 ? "border-b border-foreground" : undefined
+                      }
+                    >
+                      <a href={item.href} className={cellLink}>
+                        <span>{item.label}</span>
+                        <ArrowUpRight
+                          aria-hidden="true"
+                          className="size-3.5 shrink-0 opacity-70 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                        />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              <div className="border-b border-foreground sm:border-b-0 lg:border-r">
+                {socials.length ? (
+                  <ul>
+                    {socials.map((s) => (
+                      <li key={s.id}>
+                        <a
+                          href={s.href as string}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cellLink}
+                        >
+                          <span>{s.label}</span>
+                          <ArrowUpRight
+                            aria-hidden="true"
+                            className="size-3.5 shrink-0 text-accent transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                          />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="px-4 py-3.5 text-sm text-muted-foreground">Links coming soon.</p>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:col-span-2 lg:col-span-1">
+                <div className="border-b border-foreground px-4 py-4">
+                  <p className="font-display text-[clamp(1.15rem,2.4vw,1.65rem)] leading-none font-black uppercase tracking-tight text-accent">
+                    Stay connected
+                  </p>
+                </div>
+                <div className="flex flex-1 flex-col justify-center px-4 py-4">
+                  <p className="font-mono text-sm font-bold">Newsletter</p>
+                  <p className="mt-1.5 max-w-[18rem] text-sm leading-relaxed text-muted-foreground">
+                    Subscribe to get more insights and project updates.
+                  </p>
+                </div>
+                {email ? <FooterNewsletter email={email} /> : null}
+              </div>
+            </div>
+
+            {/* Reach out */}
+            <div className="px-4 py-6 sm:px-5 sm:py-7 lg:col-span-9 lg:col-start-4">
+              <p className="font-mono text-sm font-bold">Reach Out</p>
               {emailHref ? (
-                <li>
-                  <a href={emailHref} className={`${linkClass} break-all`}>
-                    {email}
-                  </a>
-                </li>
-              ) : null}
-              <li className="text-sm text-white/65">{personalInfo.location}</li>
-              <li className="flex items-center gap-2 text-sm text-white/65">
-                <span aria-hidden="true" className="block size-1.5 bg-accent" />
-                {personalInfo.availability}
-              </li>
-              {personalInfo.resumeUrl ? (
-                <li>
-                  <a
-                    href={personalInfo.resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={linkClass}
-                  >
-                    Resume <ArrowUpRight aria-hidden="true" className="size-3.5" />
-                  </a>
-                </li>
-              ) : null}
-            </ul>
+                <a
+                  href={emailHref}
+                  className="mt-3 block break-all font-mono text-[clamp(1rem,2.8vw,1.65rem)] leading-snug tracking-tight transition-colors hover:text-accent"
+                >
+                  {email}
+                </a>
+              ) : (
+                <a
+                  href="#contact"
+                  className="mt-3 inline-block font-mono text-[clamp(1rem,2.8vw,1.65rem)] leading-snug tracking-tight transition-colors hover:text-accent"
+                >
+                  Contact
+                </a>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Bottom row */}
-        <div className="flex flex-col gap-4 py-6 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/50 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 flex flex-col gap-3 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground sm:mt-8 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © <CopyrightYear /> {personalInfo.name}. All rights reserved.
           </p>
-          <p className="hidden md:block">Designed &amp; developed with intention.</p>
-          <BackToTop className="group inline-flex items-center gap-2 self-start text-white/70 transition-colors duration-300 hover:text-white sm:self-auto" />
+          <BackToTop className="group inline-flex items-center gap-2 self-start text-muted-foreground transition-colors duration-300 hover:text-foreground sm:self-auto" />
         </div>
       </div>
     </footer>

@@ -1,14 +1,48 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { ArrowDown } from "lucide-react";
-import type { PersonalInfo } from "@/types/portfolio";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { PersonalInfo, SocialLink } from "@/types/portfolio";
+import { socialLinks } from "@/data/portfolio";
 import { EditorialButton } from "@/components/ui/EditorialButton";
 import { PortraitPlaceholder } from "@/components/ui/PortraitPlaceholder";
 import { Ticker } from "@/components/ui/Ticker";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
+
+function BrandIcon({ path, scale = 1 }: { path: string; scale?: number }) {
+  return (
+    <span className="inline-flex size-9 shrink-0 items-center justify-center sm:size-10">
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className="size-7 fill-current sm:size-8"
+        style={{ transform: `scale(${scale})` }}
+      >
+        <path d={path} />
+      </svg>
+    </span>
+  );
+}
+
+/** Brand marks kept local — Lucide/Simple Icons drop many trademarked logos. */
+const socialIcons: Partial<Record<SocialLink["id"], ReactNode>> = {
+  facebook: (
+    <BrandIcon
+      scale={1.08}
+      path="M22 12.07C22 6.48 17.52 2 11.93 2S1.86 6.48 1.86 12.07c0 4.99 3.64 9.13 8.4 9.93v-7.02H7.9v-2.91h2.36V9.8c0-2.33 1.39-3.62 3.52-3.62 1.02 0 2.09.18 2.09.18v2.3h-1.18c-1.16 0-1.52.72-1.52 1.46v1.75h2.59l-.41 2.91h-2.18V22c4.76-.8 8.4-4.94 8.4-9.93z"
+    />
+  ),
+  github: (
+    <BrandIcon path="M12 .3a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.8 5.62-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 12 .3z" />
+  ),
+  linkedin: (
+    <BrandIcon
+      scale={0.96}
+      path="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"
+    />
+  ),
+};
 
 interface HomeSectionProps {
   info: PersonalInfo;
@@ -78,8 +112,7 @@ export function HomeSection({ info }: HomeSectionProps) {
             q("[data-hero='detail']"),
             { autoAlpha: 0, y: 10, duration: 0.65 },
             "-=0.7",
-          )
-          .from(q("[data-hero='scroll']"), { autoAlpha: 0, y: -8, duration: 0.6 }, "-=0.4");
+          );
       });
     },
     { scope: ref },
@@ -96,7 +129,7 @@ export function HomeSection({ info }: HomeSectionProps) {
         {/* Masthead */}
         <div
           data-hero="masthead"
-          className="eyebrow flex flex-wrap items-center justify-end gap-x-6 gap-y-2 pt-5 text-muted-foreground"
+          className="flex flex-wrap items-center justify-end gap-x-6 gap-y-2 pt-5 font-mono text-[0.78rem] uppercase tracking-[0.14em] text-muted-foreground sm:text-[0.84rem]"
         >
           <span data-hero-reveal className="inline-flex items-center gap-2">
             {info.location}
@@ -156,7 +189,29 @@ export function HomeSection({ info }: HomeSectionProps) {
               {info.intro}
             </p>
 
-            <div data-hero="cta" data-hero-reveal className="mt-7 flex flex-wrap items-center gap-3 sm:mt-9 sm:gap-4">
+            <ul
+              data-hero-reveal
+              className="mt-3 flex flex-wrap items-center gap-4 sm:mt-3.5 sm:gap-5"
+              aria-label="Social profiles"
+            >
+              {socialLinks
+                .filter((link) => link.href && socialIcons[link.id])
+                .map((link) => (
+                  <li key={link.id}>
+                    <a
+                      href={link.href as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.label}
+                      className="inline-flex text-foreground transition-colors duration-300 hover:text-accent"
+                    >
+                      {socialIcons[link.id]}
+                    </a>
+                  </li>
+                ))}
+            </ul>
+
+            <div data-hero="cta" data-hero-reveal className="mt-4 flex flex-wrap items-center gap-3 sm:mt-5 sm:gap-4">
               <EditorialButton href="#projects" variant="primary" arrow="right" size="lg">
                 View my work
               </EditorialButton>
@@ -223,19 +278,7 @@ export function HomeSection({ info }: HomeSectionProps) {
         </div>
       </div>
 
-      {/* Ticker + scroll cue */}
-      <div className="relative">
-        <Ticker items={info.ticker} />
-        <a
-          data-hero="scroll"
-          data-hero-reveal
-          href="#about"
-          aria-label="Scroll to About"
-          className="group absolute right-[clamp(1.25rem,4vw,3.5rem)] -bottom-6 hidden size-12 items-center justify-center border border-border bg-background text-foreground transition-colors duration-300 hover:border-accent hover:text-accent md:flex"
-        >
-          <ArrowDown aria-hidden="true" className="size-4 transition-transform duration-300 group-hover:translate-y-1" />
-        </a>
-      </div>
+      <Ticker items={info.ticker} />
     </section>
   );
 }

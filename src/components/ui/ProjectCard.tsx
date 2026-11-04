@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ArrowUpRight, GitBranch } from "lucide-react";
 import type { Project } from "@/types/portfolio";
 import { ProjectPlaceholder } from "@/components/ui/ProjectPlaceholder";
+import { SkillTag } from "@/components/ui/SkillTag";
 import { cn, pad } from "@/lib/utils";
 
 interface ProjectCardProps {
@@ -96,12 +97,11 @@ export function ProjectCard({ project, index, className }: ProjectCardProps) {
           {project.description}
         </p>
 
-        <ul className="mt-4 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-muted-foreground">
+        <ul className="mt-4 flex flex-wrap gap-2">
           {project.technologies.map((tech) => (
-            <li key={tech} className="flex items-center gap-1.5">
-              <span aria-hidden="true" className="block size-1 bg-accent/80" />
+            <SkillTag key={tech} className="text-[0.62rem]">
               {tech}
-            </li>
+            </SkillTag>
           ))}
         </ul>
 

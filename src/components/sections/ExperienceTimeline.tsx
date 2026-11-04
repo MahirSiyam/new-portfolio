@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useId, useRef, useState } from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import type { ExperienceItem } from "@/types/portfolio";
@@ -98,27 +99,39 @@ export function ExperienceTimeline({ items }: ExperienceTimelineProps) {
                 <h3 className="text-display-sm transition-colors duration-300 group-hover/row:text-accent">
                   {item.role}
                 </h3>
-                <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                  {item.companyUrl ? (
-                    <a
-                      href={item.companyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link-underline inline-flex items-center gap-1 font-medium text-foreground"
-                    >
-                      {item.company}
-                      <ArrowUpRight aria-hidden="true" className="size-3.5" />
-                    </a>
-                  ) : (
-                    <span className="font-medium text-foreground">{item.company}</span>
-                  )}
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-2.5">
+                    {item.companyLogo ? (
+                      <Image
+                        src={item.companyLogo.src}
+                        alt=""
+                        width={item.companyLogo.width ?? 40}
+                        height={item.companyLogo.height ?? 40}
+                        className="size-9 shrink-0 border border-border bg-[#0a0a0a] object-contain p-1"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                    {item.companyUrl ? (
+                      <a
+                        href={item.companyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="link-underline inline-flex items-center gap-1 font-medium text-foreground"
+                      >
+                        {item.company}
+                        <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                      </a>
+                    ) : (
+                      <span className="font-medium text-foreground">{item.company}</span>
+                    )}
+                  </span>
                   {item.location ? (
                     <>
                       <span aria-hidden="true" className="block size-1 bg-border" />
                       <span>{item.location}</span>
                     </>
                   ) : null}
-                </p>
+                </div>
               </div>
 
               {/* Description column */}
@@ -173,12 +186,6 @@ export function ExperienceTimeline({ items }: ExperienceTimelineProps) {
                 </ul>
               </div>
 
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 right-0 hidden -translate-y-1/2 translate-x-2 text-accent opacity-0 transition-[opacity,transform] duration-300 ease-editorial group-hover/row:translate-x-0 group-hover/row:opacity-100 xl:block"
-              >
-                <ArrowUpRight className="size-5" />
-              </span>
             </div>
           </li>
         );

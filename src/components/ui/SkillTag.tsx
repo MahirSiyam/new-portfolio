@@ -1,3 +1,4 @@
+import { getSkillIcon } from "@/data/skillIcons";
 import { cn } from "@/lib/utils";
 
 interface SkillTagProps {
@@ -6,8 +7,10 @@ interface SkillTagProps {
   tone?: "default" | "inverse";
 }
 
-/** Minimal printed-label chip used for skills and project technologies. */
+/** Printed-label chip with a shared monochrome brand mark for every stack. */
 export function SkillTag({ children, className, tone = "default" }: SkillTagProps) {
+  const icon = getSkillIcon(children);
+
   return (
     <li
       className={cn(
@@ -21,8 +24,16 @@ export function SkillTag({ children, className, tone = "default" }: SkillTagProp
     >
       <span
         aria-hidden="true"
-        className="block size-1 bg-border transition-colors duration-300 group-hover/tag:bg-accent"
-      />
+        className="inline-flex size-3.5 shrink-0 items-center justify-center"
+      >
+        {icon ? (
+          <svg viewBox="0 0 24 24" className="size-3.5 fill-current opacity-80 transition-opacity duration-300 group-hover/tag:opacity-100">
+            <path d={icon.path} />
+          </svg>
+        ) : (
+          <span className="block size-1 bg-border transition-colors duration-300 group-hover/tag:bg-accent" />
+        )}
+      </span>
       {children}
     </li>
   );

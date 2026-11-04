@@ -23,7 +23,7 @@ import type { PortfolioContent } from "@/types/portfolio";
 export const portfolio: PortfolioContent = {
   personalInfo: {
     name: "Mahir Mubtasim Siyam", // TODO: replace
-    shortName: "Y. Name", // TODO: replace
+    shortName: "Mahir S.",
     title: "Software Developer",
     tagline: "Building thoughtful digital products.",
     headline: [
@@ -35,7 +35,7 @@ export const portfolio: PortfolioContent = {
     intro:
       "I design and build web products end to end: resilient interfaces, dependable APIs and the systems that keep them running in production.", // TODO: replace
     location: "Sylhet, Bangladesh", // TODO: replace
-    email: "hello@example.com", // TODO: replace (example.com is a reserved placeholder domain)
+    email: "mahirmubtasimsiyam@gmail.com",
     profileImage: {
       src: "/images/portrait/IMG_3812.JPG.jpeg",
       alt: "Portrait of Your Name",
@@ -49,11 +49,11 @@ export const portfolio: PortfolioContent = {
       label: "Portfolio Edition",
     },
     ticker: [
-      "Software engineer",
-      "Open to new opportunities",
-      "Frontend to infrastructure",
-      "Design-minded, systems-first",
-      "Remote friendly",
+      "Software Developer",
+      "Available for new roles",
+      "Full-stack product engineering",
+      "Reliable systems, clear interfaces",
+      "Open to remote collaboration",
     ],
   },
 
@@ -100,13 +100,19 @@ export const portfolio: PortfolioContent = {
   experience: [
     {
       id: "exp-01",
-      role: "Software Engineer",
-      company: "Company Name",
-      companyUrl: null,
-      startDate: "2024",
+      role: "Software Developer",
+      company: "Kode By Kraft",
+      companyUrl: "https://kodebykraft.com/",
+      companyLogo: {
+        src: "/images/companies/kode-by-kraft.png",
+        alt: "Kode By Kraft logo",
+        width: 160,
+        height: 160,
+      },
+      startDate: "2026",
       endDate: "Present",
       employmentType: "Full-time",
-      location: "Remote",
+      location: "Onsite",
       description:
         "Describe the product you work on and the scope you own, from feature delivery to reliability and developer experience.",
       highlights: [
@@ -116,37 +122,6 @@ export const portfolio: PortfolioContent = {
       ],
       technologies: ["TypeScript", "React", "Next.js", "Node.js", "PostgreSQL"],
     },
-    {
-      id: "exp-02",
-      role: "Frontend Developer",
-      company: "Previous Company",
-      companyUrl: null,
-      startDate: "2022",
-      endDate: "2024",
-      employmentType: "Full-time",
-      location: "Hybrid",
-      description:
-        "Summarise the interfaces you built, the users they served and the engineering practices you helped establish.",
-      highlights: [
-        "Add a shipped feature and its impact.",
-        "Add a technical improvement, e.g. migration, tooling or performance work.",
-      ],
-      technologies: ["JavaScript", "React", "Tailwind CSS", "REST APIs"],
-    },
-    {
-      id: "exp-03",
-      role: "Web Development Intern",
-      company: "Studio Name",
-      companyUrl: null,
-      startDate: "2021",
-      endDate: "2022",
-      employmentType: "Internship",
-      location: "On-site",
-      description:
-        "Describe what you learned, the projects you contributed to and the responsibilities you grew into.",
-      highlights: ["Add one or two concrete contributions."],
-      technologies: ["HTML", "CSS", "JavaScript", "Git"],
-    },
   ],
 
   skills: [
@@ -155,8 +130,6 @@ export const portfolio: PortfolioContent = {
       label: "Frontend",
       description: "Interfaces that stay fast and legible.",
       skills: [
-        "HTML",
-        "CSS",
         "JavaScript",
         "TypeScript",
         "React",
@@ -193,7 +166,7 @@ export const portfolio: PortfolioContent = {
       id: "other",
       label: "Other Technologies",
       description: "Adjacent skills that shape the work.",
-      skills: ["Accessibility", "Performance", "Testing", "Design Systems"],
+      skills: ["Accessibility", "Performance", "Testing", "System Design"],
     },
   ],
 
@@ -297,17 +270,16 @@ export const portfolio: PortfolioContent = {
     },
   ],
 
-  // TODO: replace with your real academic record. Do not invent grades.
   education: [
     {
       id: "edu-01",
-      institution: "University Name",
+      institution: "Sylhet Engineering College",
       degree: "Bachelor of Science",
-      major: "Computer Science",
-      startDate: "2020",
-      endDate: "2024",
-      status: "Completed",
-      location: "City, Country",
+      major: "Computer Science and Engineering",
+      startDate: "2022",
+      endDate: "Ongoing",
+      status: "Ongoing",
+      location: "Sylhet, Bangladesh",
       coursework: [
         "Data Structures & Algorithms",
         "Database Systems",
@@ -321,27 +293,35 @@ export const portfolio: PortfolioContent = {
     },
     {
       id: "edu-02",
-      institution: "College Name",
+      institution: "Jalalabad Cantonment Public School & College",
       degree: "Higher Secondary Certificate",
       major: "Science",
-      startDate: "2018",
-      endDate: "2020",
+      startDate: "2020",
+      endDate: "2021",
       status: "Completed",
-      location: "City, Country",
+      location: "Sylhet, Bangladesh",
     },
   ],
 
-  // Platform root URLs are placeholders. Replace with your profile URLs or set
-  // `href` to null to hide a link.
   socialLinks: [
-    { id: "github", label: "GitHub", href: "https://github.com", handle: "@your-handle" },
+    {
+      id: "facebook",
+      label: "Facebook",
+      href: "https://www.facebook.com/mahir.siyam.2024/",
+      handle: "mahir.siyam.2024",
+    },
+    {
+      id: "github",
+      label: "GitHub",
+      href: "https://github.com/MahirSiyam",
+      handle: "@MahirSiyam",
+    },
     {
       id: "linkedin",
       label: "LinkedIn",
-      href: "https://www.linkedin.com",
-      handle: "/in/your-handle",
+      href: "https://www.linkedin.com/in/mahir-siyam/",
+      handle: "/in/mahir-siyam",
     },
-    { id: "x", label: "X / Twitter", href: null, handle: "@your-handle" },
   ],
 
   contact: {
