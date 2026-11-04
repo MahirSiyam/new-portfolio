@@ -37,10 +37,10 @@ export const portfolio: PortfolioContent = {
     location: "Sylhet, Bangladesh", // TODO: replace
     email: "mahirmubtasimsiyam@gmail.com",
     profileImage: {
-      src: "/images/portrait/IMG_3812.JPG.jpeg",
+      src: "/images/portrait/me.jpg",
       alt: "Portrait of Your Name",
-      width: 1200,
-      height: 1500,
+      width: 1000,
+      height: 1000,
     },
     resumeUrl: null, // e.g. "/resume/your-name-resume.pdf"
     availability: "Open to new opportunities", // TODO: adjust
