@@ -60,6 +60,7 @@ function formatLocalTime(date: Date) {
 export function HomeSection({ info }: HomeSectionProps) {
   const ref = useRef<HTMLElement>(null);
   const [localTime, setLocalTime] = useState("");
+  const [portraitColor, setPortraitColor] = useState(false);
 
   useEffect(() => {
     const tick = () => setLocalTime(formatLocalTime(new Date()));
@@ -96,6 +97,7 @@ export function HomeSection({ info }: HomeSectionProps) {
           .from(q("[data-hero='underline']"), { scaleX: 0, transformOrigin: "left center", duration: 0.8 }, "-=0.6")
           .from(q("[data-hero='title']"), { y: 16, autoAlpha: 0, duration: 0.7 }, "-=0.6")
           .from(q("[data-hero='copy']"), { y: 16, autoAlpha: 0, duration: 0.7 }, "-=0.55")
+          .from(q("[data-hero='socials'] > *"), { y: 14, autoAlpha: 0, duration: 0.55, stagger: 0.08 }, "-=0.5")
           .from(q("[data-hero='cta'] > *"), { y: 18, autoAlpha: 0, duration: 0.6, stagger: 0.1 }, "-=0.5")
           .from(
             q("[data-hero='backdrop']"),
@@ -190,6 +192,7 @@ export function HomeSection({ info }: HomeSectionProps) {
             </p>
 
             <ul
+              data-hero="socials"
               data-hero-reveal
               className="mt-3 flex flex-wrap items-center gap-4 sm:mt-3.5 sm:gap-5"
               aria-label="Social profiles"
@@ -234,12 +237,24 @@ export function HomeSection({ info }: HomeSectionProps) {
               <div
                 data-hero="portrait"
                 data-hero-reveal
-                className="group relative z-10 mr-[10%] aspect-[4/5] overflow-hidden bg-[#1a1a1a] dark:ring-1 dark:ring-white/15"
+                data-color={portraitColor ? "true" : undefined}
+                className="group relative z-10 mr-[10%] aspect-[4/5] overflow-hidden bg-[#1a1a1a] touch-manipulation dark:ring-1 dark:ring-white/15"
+                onPointerEnter={(event) => {
+                  if (event.pointerType === "mouse") setPortraitColor(true);
+                }}
+                onPointerLeave={(event) => {
+                  if (event.pointerType === "mouse") setPortraitColor(false);
+                }}
+                onClick={() => {
+                  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+                  setPortraitColor((open) => !open);
+                }}
+                onPointerCancel={() => setPortraitColor(false)}
               >
                 {info.profileImage ? (
                   <div
                     data-portrait-media
-                    className="absolute inset-0 origin-center scale-[1.18] transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none group-hover:scale-[1.28]"
+                    className="absolute inset-0 origin-center scale-[1.18] transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none group-hover:scale-[1.28] group-active:scale-[1.28] group-data-[color=true]:scale-[1.28]"
                   >
                     <Image
                       src={info.profileImage.src}
@@ -247,7 +262,7 @@ export function HomeSection({ info }: HomeSectionProps) {
                       fill
                       priority
                       sizes="(min-width: 1024px) 40vw, (min-width: 768px) 55vw, (min-width: 640px) 70vw, 92vw"
-                      className="object-cover object-[center_18%] grayscale contrast-[1.08] transition-[filter] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[filter] motion-reduce:transition-none group-hover:grayscale-0"
+                      className="object-cover object-[center_18%] grayscale contrast-[1.08] transition-[filter] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[filter] motion-reduce:transition-none group-hover:grayscale-0 group-active:grayscale-0 group-data-[color=true]:grayscale-0"
                     />
                   </div>
                 ) : (

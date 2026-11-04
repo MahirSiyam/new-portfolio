@@ -75,16 +75,14 @@ export function Footer() {
 
             {/* Nav + socials + stay connected */}
             <div className="grid border-b border-foreground sm:grid-cols-2 lg:col-span-9 lg:grid-cols-3">
-              <nav aria-label="Footer" className="border-b border-foreground sm:border-r sm:border-b-0">
-                <ul>
+              <nav aria-label="Footer" className="flex h-full border-b border-foreground sm:border-r sm:border-b-0">
+                <ul className="flex h-full w-full flex-col">
                   {footerNav.map((item, index) => (
                     <li
                       key={item.id}
-                      className={
-                        index < footerNav.length - 1 ? "border-b border-foreground" : undefined
-                      }
+                      className={`flex flex-1${index < footerNav.length - 1 ? " border-b border-foreground" : ""}`}
                     >
-                      <a href={item.href} className={cellLink}>
+                      <a href={item.href} className={`${cellLink} h-full w-full`}>
                         <span>{item.label}</span>
                         <ArrowUpRight
                           aria-hidden="true"
@@ -96,16 +94,16 @@ export function Footer() {
                 </ul>
               </nav>
 
-              <div className="border-b border-foreground sm:border-b-0 lg:border-r">
+              <div className="flex h-full border-b border-foreground sm:border-b-0 lg:border-r">
                 {socials.length ? (
-                  <ul>
+                  <ul className="flex h-full w-full flex-col">
                     {socials.map((s) => (
-                      <li key={s.id}>
+                      <li key={s.id} className="flex flex-1">
                         <a
                           href={s.href as string}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={cellLink}
+                          className={`${cellLink} h-full w-full`}
                         >
                           <span>{s.label}</span>
                           <ArrowUpRight
