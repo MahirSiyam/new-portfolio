@@ -1,26 +1,294 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ */
+/* Semantic theme tokens                                               */
+/* ------------------------------------------------------------------ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f3f0;
+  --foreground: #111111;
+  --muted-foreground: #666666;
+  --surface: #ffffff;
+  --muted: #eae9e6;
+  --border: #d8d8d5;
+  --accent: #ff352b;
+  --accent-foreground: #ffffff;
+  --ink: #111111;
+  --paper: #f4f3f0;
+
+  --header-height: 4.5rem;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #111111;
+  --foreground: #f5f5f3;
+  --muted-foreground: #a5a5a5;
+  --surface: #191919;
+  --muted: #222222;
+  --border: #333333;
+  --accent: #ff352b;
+  --accent-foreground: #ffffff;
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+
+  --font-display: var(--font-barlow), "Arial Narrow", Impact, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, "Courier New", monospace;
+
+  --breakpoint-xs: 30rem;
+
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    scroll-padding-top: calc(var(--header-height) + 0.5rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    font-feature-settings: "ss01", "cv11";
+    overflow-x: clip;
+    transition:
+      background-color 0.35s ease,
+      color 0.35s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body {
+      transition: none;
+    }
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  section[id] {
+    scroll-margin-top: calc(var(--header-height) + 0.5rem);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------------------------------------------ */
+/* Editorial utilities                                                 */
+/* ------------------------------------------------------------------ */
+
+@utility container-editorial {
+  width: 100%;
+  max-width: 88rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3.5vw, 3.5rem);
+}
+
+@utility text-hero {
+  font-family: var(--font-display);
+  font-weight: 900;
+  /* Scales down enough for long words like "DEVELOPER." on 320px. */
+  font-size: clamp(2.35rem, 0.35rem + 9.2vw, 10.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+@utility text-section {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.25rem, 0.75rem + 6.5vw, 6.25rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Multi-line quote/headline — must follow text-section so it can override it. */
+@utility text-hero-quote {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.65rem, 0.45rem + 5.8vw, 4.75rem);
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Closing headline: sized so a single long word fits a full-width column. */
+@utility text-cover {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.5rem, 0.25rem + 11vw, 11rem);
+  line-height: 0.88;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+@utility text-display-md {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.75rem, 1rem + 2.4vw, 3.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+}
+
+@utility text-display-sm {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.2rem, 0.85rem + 1.6vw, 2rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+  max-width: 100%;
+}
+
+@utility text-metric {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(6rem, 2rem + 16vw, 15rem);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@utility ink-rule {
+  height: 1px;
+  width: 100%;
+  background: var(--border);
+}
+
+@utility ink-rule-strong {
+  height: 2px;
+  width: 100%;
+  background: var(--foreground);
+}
+
+@utility halftone {
+  background-image: radial-gradient(
+    circle at center,
+    currentColor 0.8px,
+    transparent 0.9px
+  );
+  background-size: 6px 6px;
+}
+
+@utility writing-vertical {
+  writing-mode: vertical-rl;
+}
+
+@utility link-underline {
+  position: relative;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 0.35s var(--ease-editorial);
+  padding-bottom: 0.1em;
+
+  &:hover,
+  &:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+@utility link-underline-active {
+  background-size: 100% 1px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Motion scaffolding                                                  */
+/* ------------------------------------------------------------------ */
+
+/*
+  `html.motion` is added by a tiny inline script when JavaScript is
+  available AND the visitor has not requested reduced motion. Elements
+  flagged for the hero timeline are hidden only in that case, so content
+  is always visible without JS or when motion is reduced.
+*/
+html.motion [data-hero-reveal] {
+  visibility: hidden;
+}
+
+.reveal-line {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  /* Room for descenders/overshoot with tight display line-heights. */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.reveal-line > span {
+  display: block;
+  max-width: 100%;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-line > span {
+    will-change: auto;
+  }
+}
+
+/* Expandable rows: grid-rows transition keeps layout animation cheap. */
+.expandable {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-editorial);
+}
+
+.expandable[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.expandable > div {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expandable {
+    transition: none;
+  }
 }
