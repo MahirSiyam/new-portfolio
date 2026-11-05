@@ -32,12 +32,7 @@ export function ProjectCard({ project, index, layout = "card", className }: Proj
         className,
       )}
     >
-      <ProjectThumb
-        project={project}
-        index={index}
-        layout={layout}
-        showFeatured={layout !== "row" && project.featured}
-      />
+      <ProjectThumb project={project} index={index} layout={layout} />
 
       <div
         className={cn(
@@ -149,12 +144,10 @@ function ProjectThumb({
   project,
   index,
   layout,
-  showFeatured,
 }: {
   project: Project;
   index: number;
   layout: "feature" | "wide" | "card" | "row";
-  showFeatured: boolean;
 }) {
   return (
     <div
@@ -205,12 +198,6 @@ function ProjectThumb({
             </span>
           ) : null}
         </div>
-      ) : null}
-
-      {showFeatured ? (
-        <span className="absolute top-3 left-3 bg-foreground px-2 py-1 font-mono text-[0.58rem] uppercase tracking-[0.2em] text-background">
-          Featured
-        </span>
       ) : null}
     </div>
   );

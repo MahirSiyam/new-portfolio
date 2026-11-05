@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { projects } from "@/data/portfolio";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EditorialButton } from "@/components/ui/EditorialButton";
@@ -8,12 +11,13 @@ import { pad } from "@/lib/utils";
 const PREVIEW_COUNT = 4;
 
 export function ProjectsSection() {
+  const [showAll, setShowAll] = useState(false);
   const ordered = [
     ...projects.filter((project) => project.featured),
     ...projects.filter((project) => !project.featured),
   ];
-  const preview = ordered.slice(0, PREVIEW_COUNT);
-  const remaining = ordered.length - preview.length;
+  const visible = showAll ? ordered : ordered.slice(0, PREVIEW_COUNT);
+  const remaining = ordered.length - Math.min(ordered.length, PREVIEW_COUNT);
   const featured = projects.filter((p) => p.featured).length;
 
   return (
@@ -54,10 +58,16 @@ export function ProjectsSection() {
         </div>
 
         <div className="mt-14 lg:mt-20">
-          <ProjectsGrid projects={preview} />
-          {remaining > 0 ? (
+          <ProjectsGrid projects={visible} />
+          {!showAll && remaining > 0 ? (
             <div className="mt-12 flex flex-wrap items-center gap-5 border-t border-border pt-8 lg:mt-16">
-              <EditorialButton href="/projects" variant="primary" arrow="right" size="lg">
+              <EditorialButton
+                type="button"
+                variant="primary"
+                arrow="right"
+                size="lg"
+                onClick={() => setShowAll(true)}
+              >
                 See all projects
               </EditorialButton>
               <span className="eyebrow text-muted-foreground">{pad(remaining)} more in the index</span>

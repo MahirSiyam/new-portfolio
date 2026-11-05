@@ -1,15 +1,10 @@
-import { ArrowUpRight } from "lucide-react";
-import { contact, personalInfo, socialLinks } from "@/data/portfolio";
+import { contact, personalInfo } from "@/data/portfolio";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { ImageReveal } from "@/components/animations/ImageReveal";
-import { mailto } from "@/lib/utils";
 
 export function ContactSection() {
-  const emailHref = mailto(personalInfo.email, `Hello ${personalInfo.name}`);
-  const socials = socialLinks.filter((s) => s.href);
-
   const lines = contact.headline.map((line) =>
     line.toLowerCase() === contact.highlightWord.toLowerCase() ? (
       <span key={line} className="text-accent">
@@ -19,19 +14,6 @@ export function ContactSection() {
       line
     ),
   );
-
-  const rows: { label: string; value: string; href: string | null; external: boolean }[] = [
-    { label: "Email", value: personalInfo.email, href: emailHref, external: false },
-    ...socials.map((s) => ({
-      label: s.label,
-      value: s.handle ?? s.label,
-      href: s.href,
-      external: true,
-    })),
-    ...(personalInfo.resumeUrl
-      ? [{ label: "Resume", value: "Download PDF", href: personalInfo.resumeUrl, external: true }]
-      : []),
-  ].filter((row) => row.value);
 
   return (
     <section
@@ -90,40 +72,12 @@ export function ContactSection() {
                   <rect x="300" y="300" width="72" height="72" fill="var(--foreground)" />
                 </svg>
                 <span className="writing-vertical eyebrow absolute top-6 right-0 rotate-180 text-muted-foreground">
-                  The back cover · {personalInfo.edition.volume}
+                  Let&apos;s start a project
                 </span>
               </div>
             </ImageReveal>
           </div>
         </div>
-
-        {/* Contact directory */}
-        <ScrollReveal as="ul" className="mt-20 border-t border-border lg:mt-28" stagger={0.08} aria-label="Contact details">
-          {rows.map((row) => (
-            <li key={row.label} className="border-b border-border">
-              {row.href ? (
-                <a
-                  href={row.href}
-                  target={row.external ? "_blank" : undefined}
-                  rel={row.external ? "noopener noreferrer" : undefined}
-                  className="group grid grid-cols-[6rem_1fr_auto] items-center gap-4 py-5 transition-colors duration-300 hover:text-accent sm:grid-cols-[10rem_1fr_auto]"
-                >
-                  <span className="eyebrow text-muted-foreground">{row.label}</span>
-                  <span className="truncate font-mono text-sm sm:text-base">{row.value}</span>
-                  <ArrowUpRight
-                    aria-hidden="true"
-                    className="size-5 transition-transform duration-300 ease-editorial group-hover:translate-x-1 group-hover:-translate-y-1"
-                  />
-                </a>
-              ) : (
-                <div className="grid grid-cols-[6rem_1fr] items-center gap-4 py-5 sm:grid-cols-[10rem_1fr]">
-                  <span className="eyebrow text-muted-foreground">{row.label}</span>
-                  <span className="font-mono text-sm sm:text-base">{row.value}</span>
-                </div>
-              )}
-            </li>
-          ))}
-        </ScrollReveal>
       </div>
     </section>
   );
