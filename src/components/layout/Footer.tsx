@@ -147,7 +147,7 @@ export function Footer() {
                 </a>
               ) : (
                 <a
-                  href="#contact"
+                  href="/#contact"
                   className="mt-3 inline-block font-mono text-[clamp(1rem,2.8vw,1.65rem)] leading-snug tracking-tight transition-colors hover:text-accent"
                 >
                   Contact

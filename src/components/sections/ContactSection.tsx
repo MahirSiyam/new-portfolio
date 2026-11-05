@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { contact, personalInfo, socialLinks } from "@/data/portfolio";
-import { EditorialButton } from "@/components/ui/EditorialButton";
+import { ContactForm } from "@/components/sections/ContactForm";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { ImageReveal } from "@/components/animations/ImageReveal";
@@ -39,7 +39,7 @@ export function ContactSection() {
       aria-labelledby="contact-heading"
       className="relative overflow-hidden border-t border-border bg-surface pt-24 pb-28 sm:pt-28 lg:pt-36 lg:pb-36"
     >
-      <div className="container-editorial">
+      <div className="container-editorial [container-type:inline-size]">
         <ScrollReveal className="flex items-center gap-3">
           <span aria-hidden="true" className="block size-2 bg-accent" />
           <p className="eyebrow text-muted-foreground">{contact.eyebrow}</p>
@@ -49,7 +49,7 @@ export function ContactSection() {
           as="h2"
           id="contact-heading"
           lines={lines}
-          className="text-cover mt-6"
+          className="text-cover mt-6 w-full max-w-full"
           stagger={0.12}
         />
 
@@ -60,17 +60,7 @@ export function ContactSection() {
               <p className="text-lg leading-relaxed text-muted-foreground sm:text-xl">
                 {contact.invitation}
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                {emailHref ? (
-                  <EditorialButton href={emailHref} variant="accent" arrow="up-right" size="lg">
-                    {contact.ctaLabel}
-                  </EditorialButton>
-                ) : null}
-                <span className="eyebrow flex items-center gap-2 text-muted-foreground">
-                  <span aria-hidden="true" className="block size-1.5 animate-pulse bg-accent motion-reduce:animate-none" />
-                  {personalInfo.availability}
-                </span>
-              </div>
+              {personalInfo.email ? <ContactForm toEmail={personalInfo.email} /> : null}
             </ScrollReveal>
           </div>
 

@@ -58,13 +58,13 @@ export const portfolio: PortfolioContent = {
   },
 
   navigation: [
-    { id: "home", label: "Home", href: "#home", number: "01" },
-    { id: "about", label: "About", href: "#about", number: "02" },
-    { id: "experience", label: "Experience", href: "#experience", number: "03" },
-    { id: "skills", label: "Skills", href: "#skills", number: "04" },
-    { id: "projects", label: "Projects", href: "#projects", number: "05" },
-    { id: "education", label: "Education", href: "#education", number: "06" },
-    { id: "contact", label: "Contact", href: "#contact", number: "07" },
+    { id: "home", label: "Home", href: "/#home", number: "01" },
+    { id: "about", label: "About", href: "/#about", number: "02" },
+    { id: "experience", label: "Experience", href: "/#experience", number: "03" },
+    { id: "skills", label: "Skills", href: "/#skills", number: "04" },
+    { id: "projects", label: "Projects", href: "/projects", number: "05" },
+    { id: "education", label: "Education", href: "/#education", number: "06" },
+    { id: "contact", label: "Contact", href: "/#contact", number: "07" },
   ],
 
   about: {

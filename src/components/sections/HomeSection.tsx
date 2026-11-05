@@ -59,6 +59,7 @@ function formatLocalTime(date: Date) {
 
 export function HomeSection({ info }: HomeSectionProps) {
   const ref = useRef<HTMLElement>(null);
+  const portraitTap = useRef<{ x: number; y: number } | null>(null);
   const [localTime, setLocalTime] = useState("");
   const [portraitColor, setPortraitColor] = useState(false);
 
@@ -155,7 +156,7 @@ export function HomeSection({ info }: HomeSectionProps) {
         </div>
 
         {/* Hero grid */}
-        <div className="grid gap-8 pt-6 pb-10 sm:gap-10 sm:pt-8 sm:pb-12 md:gap-12 md:pt-10 md:pb-14 lg:grid-cols-12 lg:items-end lg:gap-8 lg:pt-14 lg:pb-20">
+        <div className="grid gap-8 pt-6 pb-10 sm:gap-10 sm:pt-8 sm:pb-12 md:gap-12 md:pt-10 md:pb-14 lg:grid-cols-12 lg:items-center lg:gap-8 lg:pt-14 lg:pb-20">
           <div className="order-2 flex min-w-0 flex-col lg:order-1 lg:col-span-7">
             <div data-hero="headline" data-hero-reveal className="min-w-0 w-full">
               <TextReveal
@@ -215,7 +216,7 @@ export function HomeSection({ info }: HomeSectionProps) {
             </ul>
 
             <div data-hero="cta" data-hero-reveal className="mt-4 flex flex-wrap items-center gap-3 sm:mt-5 sm:gap-4">
-              <EditorialButton href="#projects" variant="primary" arrow="right" size="lg">
+              <EditorialButton href="/projects" variant="primary" arrow="right" size="lg">
                 View my work
               </EditorialButton>
               <EditorialButton href="#about" variant="secondary" arrow="right" size="lg">
@@ -225,8 +226,8 @@ export function HomeSection({ info }: HomeSectionProps) {
           </div>
 
           {/* Portrait composition — first on small screens */}
-          <div className="relative order-1 w-full lg:order-2 lg:col-span-5">
-            <div className="relative mx-auto w-full max-w-[20.5rem] pb-[8%] xs:max-w-sm sm:max-w-md md:max-w-xl lg:ml-auto lg:max-w-none">
+          <div className="relative order-1 flex w-full items-center justify-center self-center lg:order-2 lg:col-span-5 lg:justify-end">
+            <div className="relative mx-auto w-full max-w-[min(100%,20.5rem)] pb-[8%] xs:max-w-sm sm:max-w-md md:max-w-xl lg:mx-0 lg:ml-auto lg:max-w-none">
               <div
                 data-hero="backdrop"
                 data-hero-reveal
@@ -238,23 +239,37 @@ export function HomeSection({ info }: HomeSectionProps) {
                 data-hero="portrait"
                 data-hero-reveal
                 data-color={portraitColor ? "true" : undefined}
-                className="group relative z-10 mr-[10%] aspect-[4/5] overflow-hidden bg-[#1a1a1a] touch-manipulation dark:ring-1 dark:ring-white/15"
+                className="relative z-10 mr-[10%] aspect-[4/5] overflow-hidden bg-[#1a1a1a] touch-manipulation select-none dark:ring-1 dark:ring-white/15"
                 onPointerEnter={(event) => {
                   if (event.pointerType === "mouse") setPortraitColor(true);
                 }}
                 onPointerLeave={(event) => {
                   if (event.pointerType === "mouse") setPortraitColor(false);
                 }}
-                onClick={() => {
-                  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+                onPointerDown={(event) => {
+                  if (event.pointerType === "mouse") return;
+                  portraitTap.current = { x: event.clientX, y: event.clientY };
+                }}
+                onPointerUp={(event) => {
+                  if (event.pointerType === "mouse") return;
+                  const start = portraitTap.current;
+                  portraitTap.current = null;
+                  if (!start) return;
+                  const moved =
+                    Math.abs(event.clientX - start.x) > 10 ||
+                    Math.abs(event.clientY - start.y) > 10;
+                  if (moved) return;
                   setPortraitColor((open) => !open);
                 }}
-                onPointerCancel={() => setPortraitColor(false)}
+                onPointerCancel={() => {
+                  portraitTap.current = null;
+                }}
               >
                 {info.profileImage ? (
                   <div
                     data-portrait-media
-                    className="absolute inset-0 origin-center scale-[1.18] transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none group-hover:scale-[1.28] group-active:scale-[1.28] group-data-[color=true]:scale-[1.28]"
+                    className="absolute inset-0 origin-center scale-[1.18] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none data-[color=true]:scale-[1.28]"
+                    data-color={portraitColor ? "true" : undefined}
                   >
                     <Image
                       src={info.profileImage.src}
@@ -262,7 +277,8 @@ export function HomeSection({ info }: HomeSectionProps) {
                       fill
                       priority
                       sizes="(min-width: 1024px) 40vw, (min-width: 768px) 55vw, (min-width: 640px) 70vw, 92vw"
-                      className="object-cover object-[center_18%] grayscale contrast-[1.08] transition-[filter] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[filter] motion-reduce:transition-none group-hover:grayscale-0 group-active:grayscale-0 group-data-[color=true]:grayscale-0"
+                      className="object-cover object-[center_18%] contrast-[1.08] grayscale transition-[filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none data-[color=true]:grayscale-0"
+                      data-color={portraitColor ? "true" : undefined}
                     />
                   </div>
                 ) : (

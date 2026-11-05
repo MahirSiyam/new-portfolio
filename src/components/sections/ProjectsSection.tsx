@@ -1,10 +1,19 @@
 import { projects } from "@/data/portfolio";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { EditorialButton } from "@/components/ui/EditorialButton";
 import { ProjectsGrid } from "@/components/sections/ProjectsGrid";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { pad } from "@/lib/utils";
 
+const PREVIEW_COUNT = 4;
+
 export function ProjectsSection() {
+  const ordered = [
+    ...projects.filter((project) => project.featured),
+    ...projects.filter((project) => !project.featured),
+  ];
+  const preview = ordered.slice(0, PREVIEW_COUNT);
+  const remaining = ordered.length - preview.length;
   const featured = projects.filter((p) => p.featured).length;
 
   return (
@@ -45,7 +54,15 @@ export function ProjectsSection() {
         </div>
 
         <div className="mt-14 lg:mt-20">
-          <ProjectsGrid projects={projects} />
+          <ProjectsGrid projects={preview} />
+          {remaining > 0 ? (
+            <div className="mt-12 flex flex-wrap items-center gap-5 border-t border-border pt-8 lg:mt-16">
+              <EditorialButton href="/projects" variant="primary" arrow="right" size="lg">
+                See all projects
+              </EditorialButton>
+              <span className="eyebrow text-muted-foreground">{pad(remaining)} more in the index</span>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

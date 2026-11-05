@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import type { NavItem, SectionId } from "@/types/portfolio";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -18,7 +19,10 @@ interface HeaderProps {
 export function Header({ name, shortName, items, email }: HeaderProps) {
   const ref = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const onHome = pathname === "/";
   const [active, setActive] = useState<SectionId>("home");
+  const current: SectionId = onHome ? active : pathname === "/projects" ? "projects" : active;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -29,7 +33,7 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
     const sections = items
       .map((item) => document.getElementById(item.id))
       .filter((el): el is HTMLElement => Boolean(el));
-    if (!sections.length) return;
+    if (!onHome || !sections.length) return;
 
     const visible = new Map<string, number>();
     const observer = new IntersectionObserver(
@@ -47,7 +51,7 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
     );
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
-  }, [items]);
+  }, [items, onHome]);
 
   // Compact header after scrolling.
   useEffect(() => {
@@ -78,7 +82,7 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
         <div className="container-editorial flex h-(--header-height) items-center justify-between gap-4">
           {/* Brand */}
           <a
-            href="#home"
+            href="/#home"
             className="group flex min-w-0 items-center gap-3"
             aria-label={`${name}, back to top`}
           >
@@ -94,7 +98,7 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
               {items
                 .filter((item) => item.id !== "contact")
                 .map((item) => {
-                  const isActive = item.id === active;
+                  const isActive = item.id === current;
                   return (
                     <li key={item.id}>
                       <a
@@ -125,7 +129,7 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
             <ThemeToggle />
             {email ? (
               <a
-                href="#contact"
+                href="/#contact"
                 className="hidden items-center border border-foreground bg-foreground px-4 py-2.5 font-mono text-[0.66rem] uppercase tracking-[0.18em] text-background transition-colors duration-300 hover:border-accent hover:bg-accent hover:text-accent-foreground xl:inline-flex"
               >
                 Contact
@@ -151,7 +155,7 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
         open={menuOpen}
         onClose={closeMenu}
         items={items}
-        activeId={active}
+        activeId={current}
         returnFocusRef={menuButtonRef}
       />
     </>

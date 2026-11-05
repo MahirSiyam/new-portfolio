@@ -148,14 +148,15 @@
   width: 100%;
 }
 
-/* Closing headline: sized so a single long word fits a full-width column. */
+/* Closing headline: scales with its container so long words stay one line. */
 @utility text-cover {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: clamp(2.5rem, 0.25rem + 11vw, 11rem);
-  line-height: 0.88;
-  letter-spacing: -0.015em;
+  font-size: clamp(1.7rem, 8.2cqi, 7.25rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
+  max-width: 100%;
 }
 
 @utility text-display-md {
@@ -290,5 +291,31 @@ html.motion [data-hero-reveal] {
 @media (prefers-reduced-motion: reduce) {
   .expandable {
     transition: none;
+  }
+}
+
+/* Compositor-only marquee. Two equal halves; -50% loops without a jump. */
+@keyframes ticker-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.ticker-track {
+  animation: ticker-marquee linear infinite;
+  backface-visibility: hidden;
+}
+
+.ticker-track:hover,
+[data-ticker-paused="true"] .ticker-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
   }
 }
