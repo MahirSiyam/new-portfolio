@@ -361,101 +361,36 @@ html.motion .preloader {
 }
 
 /*
-  Front page the zoom lands on: the site's header + hero laid out as blank
-  newsprint. Stacked like the mobile hero on narrow pages, text | photo on
-  wide ones, so it matches what the real hero will reveal underneath.
+  Final right-hand page is a window: it has no fill of its own, so the real
+  site — scaled into this exact rectangle by the preloader — shows through it.
+  The zoom then scales the site back to 1:1 and the page *is* the landing page.
 */
-.np-front {
+.sheet-face.sheet-face-window {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Window page: hero space on top, blank newsprint columns below. */
+.np-window {
+  gap: 0;
+  padding: 0;
+}
+
+.np-window-hero {
+  flex: none;
+  height: var(--hero-h, 58%);
+}
+
+.np-window-body {
+  flex: 1;
+  height: auto;
+  min-height: 0;
   padding-top: 4cqi;
 }
 
-.np-front-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 1cqi;
-}
-
-.np-front-brand {
-  width: 16cqi;
-  height: 3.6cqi;
-}
-
-.np-front-nav {
-  display: flex;
-  gap: 2.4cqi;
-}
-
-.np-front-nav > i {
-  width: 7cqi;
-  height: 1.4cqi;
-  background: var(--np-ink);
-}
-
-.np-front-hero {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 4cqi;
-  padding-block: 2cqi 1cqi;
-}
-
-/* Headline set in heavy display lines. */
-.np-lines.np-lines-display {
-  --np-ink: color-mix(in srgb, var(--foreground) 80%, transparent);
-  height: calc(var(--n, 4) * 7cqi);
-  background: repeating-linear-gradient(to bottom, var(--np-ink) 0 5.2cqi, transparent 5.2cqi 7cqi);
-  mask: linear-gradient(#000, #000) top / 100% calc(100% - 7cqi) no-repeat,
-    linear-gradient(#000, #000) bottom left / 55% 7cqi no-repeat;
-}
-
-.np-front-underline {
-  display: block;
-  width: 14cqi;
-  height: 1cqi;
-  margin-block: 2.4cqi;
-  background: var(--accent);
-}
-
-.np-front-cta {
-  display: flex;
-  gap: 1.6cqi;
-  margin-top: 3cqi;
-}
-
-.np-front-cta > span {
-  width: 17cqi;
-  height: 5.2cqi;
-}
-
-.np-block {
-  display: inline-block;
-  background: var(--foreground);
-}
-
-.np-block-outline {
+/* Lets the preloader become see-through once the site sits behind the window. */
+.preloader.is-window {
   background: transparent;
-  border: 1px solid var(--foreground);
-}
-
-.np-figure.np-figure-tall {
-  aspect-ratio: 4 / 5;
-  order: -1;
-  width: 60%;
-  margin-inline: auto;
-}
-
-@media (min-width: 1024px) {
-  .np-front-hero {
-    grid-template-columns: 7fr 5fr;
-    align-items: center;
-    gap: 5cqi;
-  }
-
-  .np-figure.np-figure-tall {
-    order: 0;
-    width: 100%;
-    margin-inline: 0;
-  }
 }
 
 .preloader-shadow {
