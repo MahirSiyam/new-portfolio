@@ -238,12 +238,11 @@ export function Preloader() {
         },
       });
 
-      // Fade/rise only — no horizontal slide (the old xPercent shift read as a
-      // right-to-left jump on reload).
-      tl.from(paper, { y: 28, autoAlpha: 0, duration: 0.9 }).from(
+      // Soft fade only — no y/x travel (those read as a bounce on reload).
+      tl.from(paper, { autoAlpha: 0, duration: 0.55, ease: "power1.out" }).from(
         metaItems,
-        { y: 8, autoAlpha: 0, duration: 0.5, stagger: 0.08 },
-        "-=0.6",
+        { autoAlpha: 0, duration: 0.4, stagger: 0.06, ease: "power1.out" },
+        "-=0.3",
       );
 
       let t = tl.duration() + 0.2;
