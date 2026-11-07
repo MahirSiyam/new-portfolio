@@ -9,10 +9,10 @@ import { isPreloaderDone, markPreloaderDone } from "@/lib/preloader";
 /* Newspaper page content (decorative, scaled with container units)    */
 /* ------------------------------------------------------------------ */
 
-type Variant = "cover" | "story" | "figure" | "quote" | "index" | "window";
+type Variant = "cover" | "story" | "figure" | "quote" | "index" | "front";
 
-function Lines({ n }: { n: number }) {
-  return <div className="np-lines" style={{ "--n": n } as CSSProperties} />;
+function Lines({ n, className = "" }: { n: number; className?: string }) {
+  return <div className={`np-lines ${className}`} style={{ "--n": n } as CSSProperties} />;
 }
 
 function Face({ variant }: { variant: Variant }) {
@@ -120,25 +120,43 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    // See-through page: the real header + hero sit behind the top part
-    // (`--hero-h`, measured live); the rest is set as blank newsprint so it
-    // reads as a full newspaper page.
-    case "window":
+    // Front page the zoom lands on: the site's header + hero as blank
+    // newsprint (text as lines, photo as a plate), then more blank columns.
+    case "front":
       return (
-        <div className="np np-window">
-          <div className="np-window-hero" />
-          <div data-window-lines className="np np-window-body">
-            <div className="np-rule" />
-            <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
-              <Lines n={9} />
-              <Lines n={9} />
-              <Lines n={9} />
+        <div className="np np-front">
+          <div className="np-front-header">
+            <span className="np-block np-front-brand" />
+            <span className="np-front-nav">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+          </div>
+          <div className="np-rule" />
+          <div className="np-front-hero">
+            <div>
+              <Lines n={4} className="np-lines-display" />
+              <span className="np-block np-front-underline" />
+              <Lines n={3} />
+              <div className="np-front-cta">
+                <span className="np-block" />
+                <span className="np-block np-block-outline" />
+              </div>
             </div>
-            <div className="np-rule" />
-            <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
-              <Lines n={8} />
-              <Lines n={8} />
-            </div>
+            <div className="np-figure np-figure-tall" />
+          </div>
+          <div className="np-rule" />
+          <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
+            <Lines n={7} />
+            <Lines n={7} />
+            <Lines n={7} />
+          </div>
+          <div className="np-rule" />
+          <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
+            <Lines n={6} />
+            <Lines n={6} />
           </div>
         </div>
       );
@@ -151,7 +169,7 @@ const SHEETS: [Variant, Variant][] = [
   ["figure", "quote"],
   ["index", "story"],
   ["figure", "cover"],
-  ["window", "index"],
+  ["front", "index"],
 ];
 
 /** Sheets that turn before the site is revealed; the last stays as the right page. */
@@ -206,16 +224,9 @@ export function Preloader() {
       // Closed newspaper: centre the right-hand stack, open into a spread later.
       gsap.set(paper, { xPercent: -25 });
 
-      // The real site. It is shrunk into the window page, then grown back.
-      const site = document.querySelector<HTMLElement>("[data-site]");
-      const releaseSite = () => {
-        if (site) gsap.set(site, { clearProps: "transform,transformOrigin,clipPath,willChange" });
-      };
-
       const tl = gsap.timeline({
         defaults: { ease: EASE.expo },
         onComplete: () => {
-          releaseSite();
           html.style.overflow = prevOverflow;
           setHidden(true);
         },
@@ -228,44 +239,8 @@ export function Preloader() {
       const openAt = t;
       const frontPage = sheets[FLIPS];
 
-      // Geometry of the window page and the site's shrink, measured live.
-      const geo = { scale: 1, x: 0, y: 0, clipH: 0 };
-      const applyClip = () => {
-        if (site) site.style.clipPath = `inset(0 0 calc(100% - ${geo.clipH}px) 0)`;
-      };
-      const siteIntoWindow = () => {
-        if (!site || !frontPage) return;
-        // Hero + header jump to their final state so the page shows the real thing.
-        markPreloaderDone();
-        const rect = frontPage.getBoundingClientRect();
-        // Show header + hero only; the rest of the page stays blank paper.
-        const heroBottom = document.getElementById("home")?.getBoundingClientRect().bottom ?? Infinity;
-        geo.scale = rect.width / window.innerWidth;
-        geo.x = rect.left;
-        geo.y = rect.top;
-        geo.clipH = Math.min(rect.height / geo.scale, heroBottom + window.scrollY);
-        // Blank newsprint starts right under the hero on the window page.
-        frontPage.style.setProperty("--hero-h", `${geo.clipH * geo.scale}px`);
-        gsap.set(site, {
-          transformOrigin: "0 0",
-          x: geo.x,
-          y: geo.y,
-          scale: geo.scale,
-          willChange: "transform",
-        });
-        applyClip();
-        root.classList.add("is-window");
-      };
-
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
-        // Just before the last page lifts, put the real site behind the window
-        // so the turn reveals the actual header + hero, scaled to the page.
-        if (i === FLIPS - 1) {
-          tl.add(siteIntoWindow, t - 0.02)
-            // The paper's drop shadow would show through the window page.
-            .to(q("[data-shadow]"), { autoAlpha: 0, duration: FLIP, ease: "power1.out" }, t - 0.02);
-        }
         tl.set(sheet, { zIndex: 100 }, t)
           .to(sheet, { rotateY: -180, duration: FLIP, ease: "power2.inOut" }, t)
           .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
@@ -292,54 +267,49 @@ export function Preloader() {
         openAt,
       ).to(progress, { scaleX: 1, duration: flipsEnd - openAt, ease: "power1.inOut" }, openAt);
 
-      // The last turn leaves the real site showing through the right-hand
-      // page. Only that page zooms: the turned pages fade while the site grows
-      // from the page rectangle back to 1:1 (full width, top edge at the top),
-      // landing exactly on the screen. Nothing is swapped — the page *is* the
-      // landing page, and once the overlay is gone it simply scrolls.
+      // The last turn leaves the blank front page on the right. Only that page
+      // zooms: the turned pages fade and the page grows until it sits exactly
+      // on the screen (full width, top edge at the top) — no overshoot. Once it
+      // has landed, the site's own entrance animation starts underneath and
+      // the paper dissolves into it.
       const zoom = flipsEnd + 0.55;
       const turned = sheets.slice(0, FLIPS);
       const shadow = q("[data-shadow]");
       const ZOOM = 1.3;
 
-      tl.set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
+      // Measured when the tween starts, so it is exact for the current viewport.
+      const fit = { scale: 1, x: 0, y: 0 };
+      const measureFit = () => {
+        if (!frontPage) return;
+        const rect = frontPage.getBoundingClientRect();
+        let scale = window.innerWidth / rect.width;
+        // Short pages (phones) still need to cover the screen height.
+        if (rect.height * scale < window.innerHeight) scale = window.innerHeight / rect.height;
+        fit.scale = scale;
+        fit.x = (window.innerWidth - rect.width * scale) / 2 - rect.left;
+        fit.y = -rect.top;
+      };
+
+      tl.add(measureFit, zoom)
+        .set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
         .to(meta, { autoAlpha: 0, duration: 0.35 }, zoom - 0.1)
         .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom)
-        // The blank newsprint under the hero gives way to the real page below.
-        .to(q("[data-window-lines]"), { autoAlpha: 0, duration: ZOOM * 0.6, ease: "power2.out" }, zoom)
-        // The page frame grows with the site so its edges stay on the content.
         .to(
           frontPage,
           {
-            scale: () => 1 / geo.scale,
-            x: () => -geo.x,
-            y: () => -geo.y,
+            scale: () => fit.scale,
+            x: () => fit.x,
+            y: () => fit.y,
             duration: ZOOM,
             ease: "power3.inOut",
           },
           zoom,
         )
-        .to(
-          site ?? [],
-          { x: 0, y: 0, scale: 1, duration: ZOOM, ease: "power3.inOut" },
-          zoom,
-        )
-        .to(
-          geo,
-          {
-            clipH: () => window.innerHeight,
-            duration: ZOOM,
-            ease: "power3.inOut",
-            onUpdate: applyClip,
-          },
-          zoom,
-        )
-        .add(releaseSite, zoom + ZOOM)
-        // Whatever is left of the overlay (page frame) fades away.
-        .to(root, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, zoom + ZOOM);
+        // Landed: hand over to the hero/header entrance, dissolve the paper.
+        .add(() => markPreloaderDone(), zoom + ZOOM)
+        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + ZOOM + 0.1);
 
       return () => {
-        releaseSite();
         html.style.overflow = prevOverflow;
       };
     },
@@ -355,7 +325,7 @@ export function Preloader() {
           <span data-shadow className="preloader-shadow" />
           {SHEETS.map(([front, back], i) => (
             <div key={i} data-sheet className="sheet" style={{ zIndex: SHEETS.length - i }}>
-              <div className={front === "window" ? "sheet-face sheet-face-window" : "sheet-face"}>
+              <div className="sheet-face">
                 <Face variant={front} />
               </div>
               <div className="sheet-face sheet-face-back">
