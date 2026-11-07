@@ -140,16 +140,22 @@ function LandingFace() {
         </span>
       </div>
       <div className="lp-masthead">{info.location}</div>
-      <p className="lp-headline">
-        {info.headline.map((line) => (
-          <span key={line}>{line}</span>
-        ))}
-      </p>
-      <span className="lp-underline" />
-      <p className="lp-tagline">{info.tagline}</p>
-      <div className="lp-grid">
-        <div>
+      {/* Mirrors the real hero: stacked (portrait first) on small screens, 7/5 grid on large. */}
+      <div className="lp-hero">
+        <div className="lp-text">
+          <p className="lp-headline">
+            {info.headline.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </p>
+          <span className="lp-underline" />
+          <p className="lp-tagline">{info.tagline}</p>
           <p className="lp-copy">{info.intro}</p>
+          <div className="lp-socials">
+            <span />
+            <span />
+            <span />
+          </div>
           <div className="lp-cta">
             <span className="lp-btn lp-btn-primary">View my work</span>
             <span className="lp-btn">About me</span>

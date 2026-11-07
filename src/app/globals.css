@@ -425,11 +425,32 @@ html.motion .preloader {
   color: var(--muted-foreground);
 }
 
-.lp-headline {
+/* Small screens: the real hero stacks with the portrait first. */
+.lp-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3cqi;
   margin-top: 3cqi;
+  min-height: 0;
+}
+
+.lp-text {
+  min-width: 0;
+}
+
+.lp-figure {
+  order: -1;
+  position: relative;
+  width: 34cqi;
+  margin-inline: auto;
+  padding-bottom: 8%;
+}
+
+.lp-headline {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 9.4cqi;
+  font-size: 7.4cqi;
   line-height: 0.92;
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -443,40 +464,80 @@ html.motion .preloader {
   display: block;
   width: 14cqi;
   height: 1cqi;
-  margin-top: 2.6cqi;
+  margin-top: 2.4cqi;
   background: var(--accent);
 }
 
 .lp-tagline {
-  margin-top: 2.6cqi;
+  margin-top: 2.4cqi;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 4cqi;
+  font-size: 3.8cqi;
   line-height: 1;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--foreground) 90%, transparent);
 }
 
-.lp-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 42cqi;
-  align-items: start;
-  gap: 4cqi;
-  margin-top: 3cqi;
-}
-
 .lp-copy {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 2cqi;
   font-size: 2.1cqi;
   line-height: 1.5;
   color: var(--muted-foreground);
+}
+
+.lp-socials {
+  display: flex;
+  gap: 2.2cqi;
+  margin-top: 2.2cqi;
+}
+
+.lp-socials > span {
+  width: 2.6cqi;
+  height: 2.6cqi;
+  border-radius: 50%;
+  background: var(--foreground);
 }
 
 .lp-cta {
   display: flex;
   flex-wrap: wrap;
   gap: 1.6cqi;
-  margin-top: 2.6cqi;
+  margin-top: 2.4cqi;
+}
+
+/* Large screens: the real hero is a 7/5 grid, text left, portrait right. */
+@media (min-width: 1024px) {
+  .lp-hero {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    align-items: center;
+    gap: 5cqi;
+    margin-top: 4cqi;
+  }
+
+  .lp-figure {
+    order: 0;
+    width: 100%;
+    margin-inline: 0;
+  }
+
+  .lp-headline {
+    font-size: 5.7cqi;
+  }
+
+  .lp-tagline {
+    font-size: 3.2cqi;
+  }
+
+  .lp-copy {
+    -webkit-line-clamp: 4;
+    max-width: 92%;
+    font-size: 1.9cqi;
+  }
 }
 
 .lp-btn {
@@ -492,12 +553,6 @@ html.motion .preloader {
 .lp-btn-primary {
   background: var(--foreground);
   color: var(--background);
-}
-
-.lp-figure {
-  position: relative;
-  width: 100%;
-  padding-bottom: 8%;
 }
 
 .lp-backdrop {
