@@ -25,14 +25,10 @@ export function markPreloaderDone() {
  * Runs `cb` once the preloader has finished. Fires immediately when no
  * preloader is mounted on the page (other routes, client navigations) and
  * falls back to a timeout so content can never stay hidden.
- *
- * `cb` receives `true` when the newspaper intro is handing over: it already
- * morphs its right-hand page into the hero, so entrance animations should
- * jump to their final state instead of playing a second reveal.
  */
-export function whenPreloaderDone(cb: (viaPreloader: boolean) => void, timeoutMs = 8000): () => void {
+export function whenPreloaderDone(cb: () => void, timeoutMs = 8000): () => void {
   if (done || typeof document === "undefined" || !document.querySelector("[data-preloader]")) {
-    cb(false);
+    cb();
     return () => {};
   }
 
@@ -43,7 +39,7 @@ export function whenPreloaderDone(cb: (viaPreloader: boolean) => void, timeoutMs
     fired = true;
     window.clearTimeout(timer);
     waiters.delete(run);
-    cb(true);
+    cb();
   };
 
   waiters.add(run);

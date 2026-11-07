@@ -119,10 +119,8 @@ export function HomeSection({ info }: HomeSectionProps) {
             "-=0.7",
           );
 
-        // No preloader: play the entrance. With the newspaper intro, its
-        // right-hand page zooms and cross-fades into this hero, so we just
-        // sit in the final state underneath instead of animating in again.
-        return whenPreloaderDone((viaPreloader) => (viaPreloader ? tl.progress(1) : tl.play(0)));
+        // Start once the entry preloader hands over (immediately if absent).
+        return whenPreloaderDone(() => tl.play(0));
       });
     },
     { scope: ref },

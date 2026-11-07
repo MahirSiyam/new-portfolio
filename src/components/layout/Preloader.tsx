@@ -233,10 +233,20 @@ export function Preloader() {
       const applyClip = () => {
         if (site) site.style.clipPath = `inset(0 0 calc(100% - ${geo.clipH}px) 0)`;
       };
+      // Show the real home page through the window for the newspaper spread,
+      // without firing the entrance hand-off yet — that plays after the zoom.
+      const showHomePreview = () => {
+        gsap.set(document.querySelectorAll<HTMLElement>("[data-hero-reveal]"), {
+          visibility: "visible",
+          clearProps: "transform,opacity,clipPath",
+        });
+        const header = document.querySelector<HTMLElement>("header");
+        if (header) gsap.set(header, { autoAlpha: 1, y: 0 });
+      };
+
       const siteIntoWindow = () => {
         if (!site || !frontPage) return;
-        // Hero + header jump to their final state so the page shows the real thing.
-        markPreloaderDone();
+        showHomePreview();
         const rect = frontPage.getBoundingClientRect();
         // Show header + hero only; the rest of the page stays blank paper.
         const heroBottom = document.getElementById("home")?.getBoundingClientRect().bottom ?? Infinity;
@@ -335,8 +345,10 @@ export function Preloader() {
           zoom,
         )
         .add(releaseSite, zoom + ZOOM)
-        // Whatever is left of the overlay (page frame) fades away.
-        .to(root, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, zoom + ZOOM);
+        // Hand over while the paper still covers the screen so the hero can
+        // reset into its entrance start state unseen, then dissolve into it.
+        .add(() => markPreloaderDone(), zoom + ZOOM)
+        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + ZOOM + 0.05);
 
       return () => {
         releaseSite();
