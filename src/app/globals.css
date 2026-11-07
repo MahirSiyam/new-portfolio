@@ -348,6 +348,7 @@ html.motion .preloader {
 }
 
 .preloader-stage {
+  position: relative;
   display: grid;
   place-items: center;
   padding: 1.25rem clamp(0.75rem, 2.5vw, 2.5rem) 0.75rem;
@@ -560,6 +561,15 @@ html.motion .preloader {
   margin-right: 10%;
   aspect-ratio: 4 / 5;
   background: var(--muted);
+}
+
+.preloader-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0.25rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: var(--muted-foreground);
 }
 
 .preloader-shadow {

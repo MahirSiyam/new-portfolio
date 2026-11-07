@@ -211,12 +211,9 @@ export function Preloader() {
       html.style.overflow = "hidden";
       window.scrollTo(0, 0);
 
-      // Browsers gate audio behind a gesture; unlock on the first one.
-      const gestures = ["pointerdown", "keydown", "touchstart"] as const;
-      gestures.forEach((type) => window.addEventListener(type, unlockAudio, { once: true, passive: true }));
-
       const q = gsap.utils.selector(root);
       const paper = q("[data-paper]");
+      const hint = q("[data-hint]");
       const sheets = q<HTMLElement>("[data-sheet]");
       const meta = q("[data-meta]");
       const metaItems = q("[data-meta] > *");
@@ -247,7 +244,33 @@ export function Preloader() {
       tl.from(paper, { y: 28, autoAlpha: 0, duration: 0.9 })
         .from(metaItems, { y: 8, autoAlpha: 0, duration: 0.5, stagger: 0.08 }, "-=0.6");
 
-      let t = tl.duration() - 0.15;
+      /*
+        Browsers only allow sound after a gesture. Hold on the cover with a
+        "tap to open" hint: the first click/tap/key unlocks audio and opens
+        the paper. Nobody is blocked — it opens by itself after a moment.
+      */
+      let opened = false;
+      let autoOpen = 0;
+      const open = () => {
+        if (opened) return;
+        opened = true;
+        window.clearTimeout(autoOpen);
+        unlockAudio();
+        gsap.killTweensOf(hint);
+        gsap.to(hint, { autoAlpha: 0, duration: 0.25, overwrite: true });
+        if (tl.paused()) tl.play();
+      };
+      const gestures = ["pointerdown", "keydown", "touchstart"] as const;
+      gestures.forEach((type) => window.addEventListener(type, open, { once: true, passive: true }));
+
+      gsap.set(hint, { autoAlpha: 0 });
+      tl.to(hint, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3").addPause(">", () => {
+        if (opened) tl.play();
+        else autoOpen = window.setTimeout(open, 2200);
+      });
+
+      let t = tl.duration();
+      const openAt = t;
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
         tl.set(sheet, { zIndex: 100 }, t)
@@ -268,39 +291,61 @@ export function Preloader() {
         counter,
         {
           value: 100,
-          duration: flipsEnd,
+          duration: flipsEnd - openAt,
           ease: "power1.inOut",
           onUpdate: () => {
             if (counterEl) counterEl.textContent = String(Math.round(counter.value)).padStart(3, "0");
           },
         },
-        0,
-      ).to(progress, { scaleX: 1, duration: flipsEnd, ease: "power1.inOut" }, 0);
+        openAt,
+      ).to(progress, { scaleX: 1, duration: flipsEnd - openAt, ease: "power1.inOut" }, openAt);
 
       // The last turn leaves the site's front page on the right-hand page.
-      // Only that page zooms: the turned pages fade, the page slides to the
-      // centre and grows until it fills the viewport, dissolving into the hero.
+      // Only that page zooms: the turned pages fade and the page grows until it
+      // sits exactly on the screen (full width, top edge at the top) — no
+      // overshoot — then dissolves into the real hero underneath.
       const zoom = flipsEnd + 0.55;
       const frontPage = sheets[FLIPS];
       const turned = sheets.slice(0, FLIPS);
       const shadow = q("[data-shadow]");
-      const zoomScale = () => {
-        if (!frontPage) return 4;
-        return (
-          Math.max(window.innerWidth / frontPage.offsetWidth, window.innerHeight / frontPage.offsetHeight) *
-          1.08
-        );
+
+      // Measured when the tween starts, so it is exact for the current viewport.
+      let fit = { scale: 1, x: 0, y: 0 };
+      const measureFit = () => {
+        if (!frontPage) return;
+        const rect = frontPage.getBoundingClientRect();
+        let scale = window.innerWidth / rect.width;
+        // Short pages (phones) still need to cover the screen height.
+        if (rect.height * scale < window.innerHeight) scale = window.innerHeight / rect.height;
+        const width = rect.width * scale;
+        fit = {
+          scale,
+          x: (window.innerWidth - width) / 2 - rect.left,
+          y: -rect.top,
+        };
       };
+
       tl.add(() => markPreloaderDone(), zoom)
-        .set(frontPage, { zIndex: 200, transformOrigin: "center center" }, zoom)
+        .add(measureFit, zoom)
+        .set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
         .to(meta, { autoAlpha: 0, duration: 0.35 }, zoom - 0.1)
         .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom)
-        .to(paper, { xPercent: -25, duration: 1.4, ease: "power3.inOut" }, zoom)
-        .to(frontPage, { scale: zoomScale, duration: 1.4, ease: "power3.inOut" }, zoom)
-        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + 0.6);
-      return () => {
+        .to(
+          frontPage,
+          {
+            scale: () => fit.scale,
+            x: () => fit.x,
+            y: () => fit.y,
+            duration: 1.3,
+            ease: "power3.inOut",
+          },
+          zoom + 0.01,
+        )
+        // Let it rest on the screen for a beat, then dissolve.
+        .to(root, { autoAlpha: 0, duration: 0.6, ease: "power2.inOut" }, zoom + 1.25);      return () => {
         html.style.overflow = prevOverflow;
-        gestures.forEach((type) => window.removeEventListener(type, unlockAudio));
+        window.clearTimeout(autoOpen);
+        gestures.forEach((type) => window.removeEventListener(type, open));
       };
     },
     { scope: ref },
@@ -324,6 +369,9 @@ export function Preloader() {
             </div>
           ))}
         </div>
+        <span data-hint className="preloader-hint eyebrow">
+          Tap to open · sound on
+        </span>
       </div>
 
       <div data-meta className="preloader-meta">
