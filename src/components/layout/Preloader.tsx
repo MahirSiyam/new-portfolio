@@ -271,24 +271,26 @@ export function Preloader() {
       ).to(progress, { scaleX: 1, duration: flipsEnd, ease: "power1.inOut" }, 0);
 
       // The last turn leaves the site's front page on the right-hand page.
-      // Zoom into that page until it fills the viewport, dissolving into the real hero.
+      // Only that page zooms: the turned pages fade, the page slides to the
+      // centre and grows until it fills the viewport, dissolving into the hero.
       const zoom = flipsEnd + 0.55;
+      const frontPage = sheets[FLIPS];
+      const turned = sheets.slice(0, FLIPS);
+      const shadow = q("[data-shadow]");
       const zoomScale = () => {
-        const el = paper[0] as HTMLElement | undefined;
-        if (!el) return 4;
-        const pageW = el.offsetWidth / 2;
-        const pageH = el.offsetHeight;
-        return Math.max(window.innerWidth / pageW, window.innerHeight / pageH) * 1.08;
+        if (!frontPage) return 4;
+        return (
+          Math.max(window.innerWidth / frontPage.offsetWidth, window.innerHeight / frontPage.offsetHeight) *
+          1.08
+        );
       };
       tl.add(() => markPreloaderDone(), zoom)
+        .set(frontPage, { zIndex: 200, transformOrigin: "center center" }, zoom)
         .to(meta, { autoAlpha: 0, duration: 0.35 }, zoom - 0.1)
-        .to(
-          paper,
-          { scale: zoomScale, transformOrigin: "75% 50%", duration: 1.4, ease: "power3.inOut" },
-          zoom,
-        )
-        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + 0.55);
-
+        .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom)
+        .to(paper, { xPercent: -25, duration: 1.4, ease: "power3.inOut" }, zoom)
+        .to(frontPage, { scale: zoomScale, duration: 1.4, ease: "power3.inOut" }, zoom)
+        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + 0.6);
       return () => {
         html.style.overflow = prevOverflow;
       };
@@ -302,7 +304,7 @@ export function Preloader() {
     <div ref={ref} data-preloader aria-hidden="true" className="preloader">
       <div className="preloader-stage">
         <div data-paper className="preloader-paper">
-          <span className="preloader-shadow" />
+          <span data-shadow className="preloader-shadow" />
           {SHEETS.map(([front, back], i) => (
             <div key={i} data-sheet className="sheet" style={{ zIndex: SHEETS.length - i }}>
               <div className="sheet-face">
