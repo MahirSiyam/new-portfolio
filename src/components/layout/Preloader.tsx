@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState, type CSSProperties } from "react";
 import { about, personalInfo } from "@/data/portfolio";
 import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
@@ -150,25 +149,21 @@ function LandingFace() {
           </p>
           <span className="lp-underline" />
           <p className="lp-tagline">{info.tagline}</p>
-          <p className="lp-copy">{info.intro}</p>
+          {/* Body copy, image and buttons are set as blank newsprint blocks. */}
+          <Lines n={3} className="lp-copy" />
           <div className="lp-socials">
             <span />
             <span />
             <span />
           </div>
           <div className="lp-cta">
-            <span className="lp-btn lp-btn-primary">View my work</span>
-            <span className="lp-btn">About me</span>
+            <span className="lp-btn lp-btn-primary" />
+            <span className="lp-btn" />
           </div>
         </div>
         <div className="lp-figure">
           <span className="lp-backdrop" />
-          <div className="lp-portrait">
-            {info.profileImage ? (
-              <Image src={info.profileImage.src} alt="" fill sizes="20vw" className="lp-portrait-img" />
-            ) : null}
-            <span className="lp-portrait-name">{info.name}</span>
-          </div>
+          <div className="lp-portrait" />
         </div>
       </div>
     </div>

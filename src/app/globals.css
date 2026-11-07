@@ -478,15 +478,11 @@ html.motion .preloader {
   color: color-mix(in srgb, var(--foreground) 90%, transparent);
 }
 
+/* Body copy as blank newsprint lines (.np-lines sets the pattern). */
 .lp-copy {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  margin-top: 2cqi;
-  font-size: 2.1cqi;
-  line-height: 1.5;
-  color: var(--muted-foreground);
+  --np-ink: color-mix(in srgb, var(--foreground) 15%, transparent);
+  width: 82%;
+  margin-top: 2.4cqi;
 }
 
 .lp-socials {
@@ -534,20 +530,14 @@ html.motion .preloader {
   }
 
   .lp-copy {
-    -webkit-line-clamp: 4;
-    max-width: 92%;
-    font-size: 1.9cqi;
+    width: 92%;
   }
 }
 
 .lp-btn {
-  padding: 1.6cqi 2.6cqi;
+  width: 17cqi;
+  height: 5.2cqi;
   border: 1px solid var(--foreground);
-  font-family: var(--font-mono);
-  font-size: 1.7cqi;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .lp-btn-primary {
@@ -564,32 +554,12 @@ html.motion .preloader {
   background: var(--accent);
 }
 
+/* Portrait as a blank plate, like the other pages' figures. */
 .lp-portrait {
   position: relative;
   margin-right: 10%;
   aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: #1a1a1a;
-}
-
-.lp-portrait-img {
-  object-fit: cover;
-  object-position: center 18%;
-  filter: grayscale(1) contrast(1.08);
-  transform: scale(1.18);
-}
-
-.lp-portrait-name {
-  position: absolute;
-  inset: auto 0 0;
-  padding: 6cqi 2cqi 2cqi;
-  background: linear-gradient(to top, #000, rgb(0 0 0 / 0.7), transparent);
-  font-family: var(--font-body);
-  font-weight: 800;
-  font-size: 2.9cqi;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  color: #fff;
+  background: var(--muted);
 }
 
 .preloader-shadow {
