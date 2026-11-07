@@ -10,7 +10,7 @@ import { isPreloaderDone, markPreloaderDone } from "@/lib/preloader";
 /* Newspaper page content (decorative, scaled with container units)    */
 /* ------------------------------------------------------------------ */
 
-type Variant = "cover" | "story" | "figure" | "quote" | "index";
+type Variant = "cover" | "story" | "figure" | "quote" | "index" | "landing";
 
 function Lines({ n, className = "" }: { n: number; className?: string }) {
   return <div className={`np-lines ${className}`} style={{ "--n": n } as CSSProperties} />;
@@ -121,10 +121,12 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
+    case "landing":
+      return <LandingFace />;
   }
 }
 
-/** Miniature of the hero (`#home > .container-editorial`) used as the final page. */
+/** Miniature of the hero (`#home > .container-editorial`) on the final right-hand page. */
 function LandingFace() {
   const info = personalInfo;
   return (
@@ -134,21 +136,19 @@ function LandingFace() {
         <span className="lp-nav">
           <span>Home</span>
           <span>About</span>
-          <span>Experience</span>
-          <span>Skills</span>
           <span>Projects</span>
         </span>
       </div>
       <div className="lp-masthead">{info.location}</div>
+      <p className="lp-headline">
+        {info.headline.map((line) => (
+          <span key={line}>{line}</span>
+        ))}
+      </p>
+      <span className="lp-underline" />
+      <p className="lp-tagline">{info.tagline}</p>
       <div className="lp-grid">
         <div>
-          <p className="lp-headline">
-            {info.headline.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
-          </p>
-          <span className="lp-underline" />
-          <p className="lp-tagline">{info.tagline}</p>
           <p className="lp-copy">{info.intro}</p>
           <div className="lp-cta">
             <span className="lp-btn lp-btn-primary">View my work</span>
@@ -175,10 +175,10 @@ const SHEETS: [Variant, Variant][] = [
   ["figure", "quote"],
   ["index", "story"],
   ["figure", "cover"],
-  ["quote", "index"],
+  ["landing", "index"],
 ];
 
-/** Sheets that turn before the site is revealed; the last stays as the spread. */
+/** Sheets that turn before the site is revealed; the last stays as the right page. */
 const FLIPS = SHEETS.length - 1;
 
 /* ------------------------------------------------------------------ */
@@ -212,7 +212,6 @@ export function Preloader() {
       const q = gsap.utils.selector(root);
       const paper = q("[data-paper]");
       const sheets = q<HTMLElement>("[data-sheet]");
-      const landing = q<HTMLElement>("[data-landing]");
       const meta = q("[data-meta]");
       const metaItems = q("[data-meta] > *");
       const progress = q("[data-progress]");
@@ -226,7 +225,6 @@ export function Preloader() {
       sheets.forEach((sheet, i) => gsap.set(sheet, { zIndex: sheets.length - i }));
       // Closed newspaper: centre the right-hand stack, open into a spread later.
       gsap.set(paper, { xPercent: -25 });
-      gsap.set(landing, { autoAlpha: 0 });
 
       const tl = gsap.timeline({
         defaults: { ease: EASE.expo },
@@ -268,27 +266,24 @@ export function Preloader() {
         0,
       ).to(progress, { scaleX: 1, duration: flipsEnd, ease: "power1.inOut" }, 0);
 
-      // The spread settles into the site's front page (a miniature of the hero)…
-      const swap = flipsEnd + 0.2;
-      tl.to(paper, { scale: 1.03, autoAlpha: 0, duration: 0.55, ease: EASE.inOut }, swap)
-        .fromTo(
-          landing,
-          { scale: 0.94, autoAlpha: 0 },
-          { scale: 1, autoAlpha: 1, duration: 0.65, ease: EASE.out },
-          swap + 0.12,
-        );
-
-      // …then zooms in until it fills the viewport, dissolving into the real hero.
-      const zoom = swap + 1.15;
+      // The last turn leaves the site's front page on the right-hand page.
+      // Zoom into that page until it fills the viewport, dissolving into the real hero.
+      const zoom = flipsEnd + 0.55;
       const zoomScale = () => {
-        const el = landing[0];
+        const el = paper[0] as HTMLElement | undefined;
         if (!el) return 4;
-        return Math.max(window.innerWidth / el.offsetWidth, window.innerHeight / el.offsetHeight) * 1.08;
+        const pageW = el.offsetWidth / 2;
+        const pageH = el.offsetHeight;
+        return Math.max(window.innerWidth / pageW, window.innerHeight / pageH) * 1.08;
       };
       tl.add(() => markPreloaderDone(), zoom)
         .to(meta, { autoAlpha: 0, duration: 0.35 }, zoom - 0.1)
-        .to(landing, { scale: zoomScale, duration: 1.35, ease: "power3.inOut" }, zoom)
-        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + 0.5);
+        .to(
+          paper,
+          { scale: zoomScale, transformOrigin: "75% 50%", duration: 1.4, ease: "power3.inOut" },
+          zoom,
+        )
+        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + 0.55);
 
       return () => {
         html.style.overflow = prevOverflow;
@@ -314,9 +309,6 @@ export function Preloader() {
               </div>
             </div>
           ))}
-        </div>
-        <div data-landing className="preloader-landing">
-          <LandingFace />
         </div>
       </div>
 
