@@ -370,6 +370,24 @@ html.motion .preloader {
   box-shadow: none;
 }
 
+/* Window page: hero space on top, blank newsprint columns below. */
+.np-window {
+  gap: 0;
+  padding: 0;
+}
+
+.np-window-hero {
+  flex: none;
+  height: var(--hero-h, 58%);
+}
+
+.np-window-body {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  padding-top: 4cqi;
+}
+
 /* Lets the preloader become see-through once the site sits behind the window. */
 .preloader.is-window {
   background: transparent;

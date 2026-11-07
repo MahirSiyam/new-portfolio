@@ -120,9 +120,28 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    // See-through page: the real header + hero sit behind it, scaled to fit.
+    // See-through page: the real header + hero sit behind the top part
+    // (`--hero-h`, measured live); the rest is set as blank newsprint so it
+    // reads as a full newspaper page.
     case "window":
-      return null;
+      return (
+        <div className="np np-window">
+          <div className="np-window-hero" />
+          <div data-window-lines className="np np-window-body">
+            <div className="np-rule" />
+            <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
+              <Lines n={9} />
+              <Lines n={9} />
+              <Lines n={9} />
+            </div>
+            <div className="np-rule" />
+            <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
+              <Lines n={8} />
+              <Lines n={8} />
+            </div>
+          </div>
+        </div>
+      );
   }
 }
 
@@ -225,6 +244,8 @@ export function Preloader() {
         geo.x = rect.left;
         geo.y = rect.top;
         geo.clipH = Math.min(rect.height / geo.scale, heroBottom + window.scrollY);
+        // Blank newsprint starts right under the hero on the window page.
+        frontPage.style.setProperty("--hero-h", `${geo.clipH * geo.scale}px`);
         gsap.set(site, {
           transformOrigin: "0 0",
           x: geo.x,
@@ -284,6 +305,8 @@ export function Preloader() {
       tl.set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
         .to(meta, { autoAlpha: 0, duration: 0.35 }, zoom - 0.1)
         .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom)
+        // The blank newsprint under the hero gives way to the real page below.
+        .to(q("[data-window-lines]"), { autoAlpha: 0, duration: ZOOM * 0.6, ease: "power2.out" }, zoom)
         // The page frame grows with the site so its edges stay on the content.
         .to(
           frontPage,
