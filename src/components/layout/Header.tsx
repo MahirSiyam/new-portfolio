@@ -73,8 +73,8 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
         ease: EASE.out,
         paused: true,
       });
-      // Newspaper hand-off settles; otherwise play the entrance.
-      return whenPreloaderDone((mode) => (mode === "settle" ? tween.progress(1) : tween.play(0)));
+      // Wait for the entry preloader when one is on the page.
+      return whenPreloaderDone(() => tween.play(0));
     },
     { scope: ref },
   );

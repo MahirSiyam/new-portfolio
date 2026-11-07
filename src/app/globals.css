@@ -365,32 +365,193 @@ html.motion .preloader {
   site — scaled into this exact rectangle by the preloader — shows through it.
   The zoom then scales the site back to 1:1 and the page *is* the landing page.
 */
-.sheet-face.sheet-face-window {
-  background: transparent;
-  box-shadow: none;
-}
-
-/* Window page: hero space on top, blank newsprint columns below. */
-.np-window {
-  gap: 0;
-  padding: 0;
-}
-
-.np-window-hero {
-  flex: none;
-  height: var(--hero-h, 58%);
-}
-
-.np-window-body {
-  flex: 1;
-  height: auto;
-  min-height: 0;
+/*
+  Right-hand home sketch: real headline + tagline, blank blocks for copy,
+  image and CTAs. Stacked on small pages, text | photo on large ones.
+*/
+.np-home {
   padding-top: 4cqi;
 }
 
-/* Lets the preloader become see-through once the site sits behind the window. */
-.preloader.is-window {
+.np-home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1cqi;
+}
+
+.np-home-brand {
+  display: flex;
+  align-items: center;
+  gap: 1.4cqi;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 4.2cqi;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.np-home-brand::before {
+  content: "";
+  width: 1.8cqi;
+  height: 1.8cqi;
+  background: var(--accent);
+}
+
+.np-home-nav {
+  display: flex;
+  gap: 2.4cqi;
+}
+
+.np-home-nav > i {
+  width: 7cqi;
+  height: 1.4cqi;
+  background: var(--np-ink);
+}
+
+.np-home-masthead {
+  margin-top: 2.4cqi;
+  font-family: var(--font-mono);
+  font-size: 2cqi;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--muted-foreground);
+}
+
+.np-home-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 3cqi;
+  margin-top: 3cqi;
+  min-height: 0;
+}
+
+.np-home-text {
+  min-width: 0;
+}
+
+.np-home-figure {
+  order: -1;
+  position: relative;
+  width: 34cqi;
+  margin-inline: auto;
+  padding-bottom: 8%;
+}
+
+.np-home-headline {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 7.4cqi;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.np-home-headline > span {
+  display: block;
+}
+
+.np-home-underline {
+  display: block;
+  width: 14cqi;
+  height: 1cqi;
+  margin-top: 2.4cqi;
+  background: var(--accent);
+}
+
+.np-home-tagline {
+  margin-top: 2.4cqi;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 3.8cqi;
+  line-height: 1;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--foreground) 90%, transparent);
+}
+
+.np-home-copy {
+  width: 82%;
+  margin-top: 2.4cqi;
+}
+
+.np-home-socials {
+  display: flex;
+  gap: 2.2cqi;
+  margin-top: 2.2cqi;
+}
+
+.np-home-socials > span {
+  width: 2.6cqi;
+  height: 2.6cqi;
+  border-radius: 50%;
+  background: var(--foreground);
+}
+
+.np-home-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6cqi;
+  margin-top: 2.4cqi;
+}
+
+.np-home-cta > span {
+  width: 17cqi;
+  height: 5.2cqi;
+}
+
+.np-block {
+  display: inline-block;
+  background: var(--foreground);
+}
+
+.np-block-outline {
   background: transparent;
+  border: 1px solid var(--foreground);
+}
+
+.np-home-backdrop {
+  position: absolute;
+  top: 8%;
+  right: 0;
+  bottom: 0;
+  left: 12%;
+  background: var(--accent);
+}
+
+.np-home-portrait {
+  position: relative;
+  margin-right: 10%;
+  aspect-ratio: 4 / 5;
+  background: var(--muted);
+}
+
+@media (min-width: 1024px) {
+  .np-home-hero {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    align-items: center;
+    gap: 5cqi;
+    margin-top: 4cqi;
+  }
+
+  .np-home-figure {
+    order: 0;
+    width: 100%;
+    margin-inline: 0;
+  }
+
+  .np-home-headline {
+    font-size: 5.7cqi;
+  }
+
+  .np-home-tagline {
+    font-size: 3.2cqi;
+  }
+
+  .np-home-copy {
+    width: 92%;
+  }
 }
 
 .preloader-shadow {
