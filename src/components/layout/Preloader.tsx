@@ -229,7 +229,6 @@ export function Preloader() {
         transformOrigin: "left center",
       });
       sheets.forEach((sheet, i) => gsap.set(sheet, { zIndex: sheets.length - i }));
-      gsap.set(paper, { xPercent: -25 });
 
       const tl = gsap.timeline({
         defaults: { ease: EASE.expo },
@@ -239,6 +238,8 @@ export function Preloader() {
         },
       });
 
+      // Fade/rise only — no horizontal slide (the old xPercent shift read as a
+      // right-to-left jump on reload).
       tl.from(paper, { y: 28, autoAlpha: 0, duration: 0.9 }).from(
         metaItems,
         { y: 8, autoAlpha: 0, duration: 0.5, stagger: 0.08 },
@@ -256,9 +257,6 @@ export function Preloader() {
           .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
           .to(sheet, { "--shade": 0, duration: FLIP / 2, ease: "sine.out" }, t + FLIP / 2)
           .set(sheet, { zIndex: 50 + i }, t + FLIP);
-        if (i === 0) {
-          tl.to(paper, { xPercent: 0, duration: FLIP + 0.3, ease: EASE.inOut }, t);
-        }
         t += GAP;
       }
 
