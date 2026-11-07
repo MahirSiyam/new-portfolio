@@ -73,8 +73,9 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
         ease: EASE.out,
         paused: true,
       });
-      // Wait for the entry preloader when one is on the page.
-      return whenPreloaderDone(() => tween.play(0));
+      // With the newspaper intro the header is revealed by its cross-fade;
+      // only animate in when there is no preloader on the page.
+      return whenPreloaderDone((viaPreloader) => (viaPreloader ? tween.progress(1) : tween.play(0)));
     },
     { scope: ref },
   );

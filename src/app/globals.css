@@ -563,15 +563,6 @@ html.motion .preloader {
   background: var(--muted);
 }
 
-.preloader-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 0.25rem;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  color: var(--muted-foreground);
-}
-
 .preloader-shadow {
   position: absolute;
   left: 50%;

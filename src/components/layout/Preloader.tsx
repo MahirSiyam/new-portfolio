@@ -4,7 +4,6 @@ import { useRef, useState, type CSSProperties } from "react";
 import { about, personalInfo } from "@/data/portfolio";
 import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
 import { isPreloaderDone, markPreloaderDone } from "@/lib/preloader";
-import { playPageFlip, unlockAudio } from "@/lib/page-flip-sound";
 
 /* ------------------------------------------------------------------ */
 /* Newspaper page content (decorative, scaled with container units)    */
@@ -213,7 +212,6 @@ export function Preloader() {
 
       const q = gsap.utils.selector(root);
       const paper = q("[data-paper]");
-      const hint = q("[data-hint]");
       const sheets = q<HTMLElement>("[data-sheet]");
       const meta = q("[data-meta]");
       const metaItems = q("[data-meta] > *");
@@ -244,37 +242,11 @@ export function Preloader() {
       tl.from(paper, { y: 28, autoAlpha: 0, duration: 0.9 })
         .from(metaItems, { y: 8, autoAlpha: 0, duration: 0.5, stagger: 0.08 }, "-=0.6");
 
-      /*
-        Browsers only allow sound after a gesture. Hold on the cover with a
-        "tap to open" hint: the first click/tap/key unlocks audio and opens
-        the paper. Nobody is blocked — it opens by itself after a moment.
-      */
-      let opened = false;
-      let autoOpen = 0;
-      const open = () => {
-        if (opened) return;
-        opened = true;
-        window.clearTimeout(autoOpen);
-        unlockAudio();
-        gsap.killTweensOf(hint);
-        gsap.to(hint, { autoAlpha: 0, duration: 0.25, overwrite: true });
-        if (tl.paused()) tl.play();
-      };
-      const gestures = ["pointerdown", "keydown", "touchstart"] as const;
-      gestures.forEach((type) => window.addEventListener(type, open, { once: true, passive: true }));
-
-      gsap.set(hint, { autoAlpha: 0 });
-      tl.to(hint, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3").addPause(">", () => {
-        if (opened) tl.play();
-        else autoOpen = window.setTimeout(open, 2200);
-      });
-
-      let t = tl.duration();
+      let t = tl.duration() + 0.2;
       const openAt = t;
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
         tl.set(sheet, { zIndex: 100 }, t)
-          .add(() => playPageFlip(FLIP), t)
           .to(sheet, { rotateY: -180, duration: FLIP, ease: "power2.inOut" }, t)
           .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
           .to(sheet, { "--shade": 0, duration: FLIP / 2, ease: "sine.out" }, t + FLIP / 2)
@@ -303,7 +275,10 @@ export function Preloader() {
       // The last turn leaves the site's front page on the right-hand page.
       // Only that page zooms: the turned pages fade and the page grows until it
       // sits exactly on the screen (full width, top edge at the top) — no
-      // overshoot — then dissolves into the real hero underneath.
+      // overshoot — then cross-fades into the real hero, which is already in
+      // its final state underneath (see `whenPreloaderDone`), so the page
+      // *becomes* the landing page instead of the landing page animating
+      // in a second time.
       const zoom = flipsEnd + 0.55;
       const frontPage = sheets[FLIPS];
       const turned = sheets.slice(0, FLIPS);
@@ -341,11 +316,11 @@ export function Preloader() {
           },
           zoom + 0.01,
         )
-        // Let it rest on the screen for a beat, then dissolve.
-        .to(root, { autoAlpha: 0, duration: 0.6, ease: "power2.inOut" }, zoom + 1.25);      return () => {
+        // Let it rest on the screen for a beat, then cross-fade into the hero.
+        .to(root, { autoAlpha: 0, duration: 0.75, ease: "power2.inOut" }, zoom + 1.2);
+
+      return () => {
         html.style.overflow = prevOverflow;
-        window.clearTimeout(autoOpen);
-        gestures.forEach((type) => window.removeEventListener(type, open));
       };
     },
     { scope: ref },
@@ -369,9 +344,6 @@ export function Preloader() {
             </div>
           ))}
         </div>
-        <span data-hint className="preloader-hint eyebrow">
-          Tap to open · sound on
-        </span>
       </div>
 
       <div data-meta className="preloader-meta">
