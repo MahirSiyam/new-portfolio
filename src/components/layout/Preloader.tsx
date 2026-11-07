@@ -9,10 +9,10 @@ import { isPreloaderDone, markPreloaderDone } from "@/lib/preloader";
 /* Newspaper page content (decorative, scaled with container units)    */
 /* ------------------------------------------------------------------ */
 
-type Variant = "cover" | "story" | "figure" | "quote" | "index" | "landing";
+type Variant = "cover" | "story" | "figure" | "quote" | "index" | "window";
 
-function Lines({ n, className = "" }: { n: number; className?: string }) {
-  return <div className={`np-lines ${className}`} style={{ "--n": n } as CSSProperties} />;
+function Lines({ n }: { n: number }) {
+  return <div className="np-lines" style={{ "--n": n } as CSSProperties} />;
 }
 
 function Face({ variant }: { variant: Variant }) {
@@ -120,54 +120,10 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    case "landing":
-      return <LandingFace />;
+    // See-through page: the real header + hero sit behind it, scaled to fit.
+    case "window":
+      return null;
   }
-}
-
-/** Miniature of the hero (`#home > .container-editorial`) on the final right-hand page. */
-function LandingFace() {
-  const info = personalInfo;
-  return (
-    <div className="lp">
-      <div className="lp-header">
-        <span className="lp-brand">{info.shortName}</span>
-        <span className="lp-nav">
-          <span>Home</span>
-          <span>About</span>
-          <span>Projects</span>
-        </span>
-      </div>
-      <div className="lp-masthead">{info.location}</div>
-      {/* Mirrors the real hero: stacked (portrait first) on small screens, 7/5 grid on large. */}
-      <div className="lp-hero">
-        <div className="lp-text">
-          <p className="lp-headline">
-            {info.headline.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
-          </p>
-          <span className="lp-underline" />
-          <p className="lp-tagline">{info.tagline}</p>
-          {/* Body copy, image and buttons are set as blank newsprint blocks. */}
-          <Lines n={3} className="lp-copy" />
-          <div className="lp-socials">
-            <span />
-            <span />
-            <span />
-          </div>
-          <div className="lp-cta">
-            <span className="lp-btn lp-btn-primary" />
-            <span className="lp-btn" />
-          </div>
-        </div>
-        <div className="lp-figure">
-          <span className="lp-backdrop" />
-          <div className="lp-portrait" />
-        </div>
-      </div>
-    </div>
-  );
 }
 
 /** [front, back] for each sheet, cover first. */
@@ -176,7 +132,7 @@ const SHEETS: [Variant, Variant][] = [
   ["figure", "quote"],
   ["index", "story"],
   ["figure", "cover"],
-  ["landing", "index"],
+  ["window", "index"],
 ];
 
 /** Sheets that turn before the site is revealed; the last stays as the right page. */
@@ -231,9 +187,16 @@ export function Preloader() {
       // Closed newspaper: centre the right-hand stack, open into a spread later.
       gsap.set(paper, { xPercent: -25 });
 
+      // The real site. It is shrunk into the window page, then grown back.
+      const site = document.querySelector<HTMLElement>("[data-site]");
+      const releaseSite = () => {
+        if (site) gsap.set(site, { clearProps: "transform,transformOrigin,clipPath,willChange" });
+      };
+
       const tl = gsap.timeline({
         defaults: { ease: EASE.expo },
         onComplete: () => {
+          releaseSite();
           html.style.overflow = prevOverflow;
           setHidden(true);
         },
@@ -244,8 +207,44 @@ export function Preloader() {
 
       let t = tl.duration() + 0.2;
       const openAt = t;
+      const frontPage = sheets[FLIPS];
+
+      // Geometry of the window page and the site's shrink, measured live.
+      const geo = { scale: 1, x: 0, y: 0, clipH: 0 };
+      const applyClip = () => {
+        if (site) site.style.clipPath = `inset(0 0 calc(100% - ${geo.clipH}px) 0)`;
+      };
+      const siteIntoWindow = () => {
+        if (!site || !frontPage) return;
+        // Hero + header jump to their final state so the page shows the real thing.
+        markPreloaderDone();
+        const rect = frontPage.getBoundingClientRect();
+        // Show header + hero only; the rest of the page stays blank paper.
+        const heroBottom = document.getElementById("home")?.getBoundingClientRect().bottom ?? Infinity;
+        geo.scale = rect.width / window.innerWidth;
+        geo.x = rect.left;
+        geo.y = rect.top;
+        geo.clipH = Math.min(rect.height / geo.scale, heroBottom + window.scrollY);
+        gsap.set(site, {
+          transformOrigin: "0 0",
+          x: geo.x,
+          y: geo.y,
+          scale: geo.scale,
+          willChange: "transform",
+        });
+        applyClip();
+        root.classList.add("is-window");
+      };
+
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
+        // Just before the last page lifts, put the real site behind the window
+        // so the turn reveals the actual header + hero, scaled to the page.
+        if (i === FLIPS - 1) {
+          tl.add(siteIntoWindow, t - 0.02)
+            // The paper's drop shadow would show through the window page.
+            .to(q("[data-shadow]"), { autoAlpha: 0, duration: FLIP, ease: "power1.out" }, t - 0.02);
+        }
         tl.set(sheet, { zIndex: 100 }, t)
           .to(sheet, { rotateY: -180, duration: FLIP, ease: "power2.inOut" }, t)
           .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
@@ -272,54 +271,52 @@ export function Preloader() {
         openAt,
       ).to(progress, { scaleX: 1, duration: flipsEnd - openAt, ease: "power1.inOut" }, openAt);
 
-      // The last turn leaves the site's front page on the right-hand page.
-      // Only that page zooms: the turned pages fade and the page grows until it
-      // sits exactly on the screen (full width, top edge at the top) — no
-      // overshoot — then cross-fades into the real hero, which is already in
-      // its final state underneath (see `whenPreloaderDone`), so the page
-      // *becomes* the landing page instead of the landing page animating
-      // in a second time.
+      // The last turn leaves the real site showing through the right-hand
+      // page. Only that page zooms: the turned pages fade while the site grows
+      // from the page rectangle back to 1:1 (full width, top edge at the top),
+      // landing exactly on the screen. Nothing is swapped — the page *is* the
+      // landing page, and once the overlay is gone it simply scrolls.
       const zoom = flipsEnd + 0.55;
-      const frontPage = sheets[FLIPS];
       const turned = sheets.slice(0, FLIPS);
       const shadow = q("[data-shadow]");
+      const ZOOM = 1.3;
 
-      // Measured when the tween starts, so it is exact for the current viewport.
-      let fit = { scale: 1, x: 0, y: 0 };
-      const measureFit = () => {
-        if (!frontPage) return;
-        const rect = frontPage.getBoundingClientRect();
-        let scale = window.innerWidth / rect.width;
-        // Short pages (phones) still need to cover the screen height.
-        if (rect.height * scale < window.innerHeight) scale = window.innerHeight / rect.height;
-        const width = rect.width * scale;
-        fit = {
-          scale,
-          x: (window.innerWidth - width) / 2 - rect.left,
-          y: -rect.top,
-        };
-      };
-
-      tl.add(() => markPreloaderDone(), zoom)
-        .add(measureFit, zoom)
-        .set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
+      tl.set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
         .to(meta, { autoAlpha: 0, duration: 0.35 }, zoom - 0.1)
         .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom)
+        // The page frame grows with the site so its edges stay on the content.
         .to(
           frontPage,
           {
-            scale: () => fit.scale,
-            x: () => fit.x,
-            y: () => fit.y,
-            duration: 1.3,
+            scale: () => 1 / geo.scale,
+            x: () => -geo.x,
+            y: () => -geo.y,
+            duration: ZOOM,
             ease: "power3.inOut",
           },
-          zoom + 0.01,
+          zoom,
         )
-        // Let it rest on the screen for a beat, then cross-fade into the hero.
-        .to(root, { autoAlpha: 0, duration: 0.75, ease: "power2.inOut" }, zoom + 1.2);
+        .to(
+          site ?? [],
+          { x: 0, y: 0, scale: 1, duration: ZOOM, ease: "power3.inOut" },
+          zoom,
+        )
+        .to(
+          geo,
+          {
+            clipH: () => window.innerHeight,
+            duration: ZOOM,
+            ease: "power3.inOut",
+            onUpdate: applyClip,
+          },
+          zoom,
+        )
+        .add(releaseSite, zoom + ZOOM)
+        // Whatever is left of the overlay (page frame) fades away.
+        .to(root, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, zoom + ZOOM);
 
       return () => {
+        releaseSite();
         html.style.overflow = prevOverflow;
       };
     },
@@ -335,7 +332,7 @@ export function Preloader() {
           <span data-shadow className="preloader-shadow" />
           {SHEETS.map(([front, back], i) => (
             <div key={i} data-sheet className="sheet" style={{ zIndex: SHEETS.length - i }}>
-              <div className="sheet-face">
+              <div className={front === "window" ? "sheet-face sheet-face-window" : "sheet-face"}>
                 <Face variant={front} />
               </div>
               <div className="sheet-face sheet-face-back">
