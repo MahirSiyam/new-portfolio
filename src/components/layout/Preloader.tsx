@@ -171,11 +171,12 @@ function Face({ variant }: { variant: Variant }) {
   }
 }
 
-/** [front, back] for each sheet, cover first. Three turns keep the pacing light. */
+/** [front, back] for each sheet, cover first. */
 const SHEETS: [Variant, Variant][] = [
   ["cover", "story"],
   ["figure", "quote"],
-  ["index", "cover"],
+  ["index", "story"],
+  ["figure", "cover"],
   ["home", "index"],
 ];
 
@@ -219,82 +220,69 @@ export function Preloader() {
       const counterEl = root.querySelector<HTMLElement>("[data-counter]");
       const counter = { value: 0 };
 
-      // Slightly overlapping turns read as one continuous flip sequence.
-      const FLIP = 0.9;
-      const GAP = 0.48;
+      const FLIP = 0.72;
+      const GAP = 0.5;
 
       const paperWidth = (paper[0] as HTMLElement | undefined)?.offsetWidth ?? 800;
-      const perspective = Math.max(1400, paperWidth * 1.5);
-      gsap.set(paper, {
-        xPercent: -25,
-        transformPerspective: perspective,
-        force3D: true,
-      });
       gsap.set(sheets, {
+        transformPerspective: Math.max(1600, paperWidth * 1.6),
         transformOrigin: "left center",
-        force3D: true,
-        z: 0.01,
       });
       sheets.forEach((sheet, i) => gsap.set(sheet, { zIndex: sheets.length - i }));
+      gsap.set(paper, { xPercent: -25 });
 
       const tl = gsap.timeline({
-        defaults: { ease: EASE.soft, force3D: true },
+        defaults: { ease: EASE.expo },
         onComplete: () => {
           html.style.overflow = prevOverflow;
           setHidden(true);
         },
       });
 
-      tl.from(paper, { y: 20, autoAlpha: 0, duration: 0.7, ease: EASE.out }).from(
+      tl.from(paper, { y: 28, autoAlpha: 0, duration: 0.9 }).from(
         metaItems,
-        { y: 6, autoAlpha: 0, duration: 0.4, stagger: 0.05, ease: EASE.out },
-        "-=0.45",
+        { y: 8, autoAlpha: 0, duration: 0.5, stagger: 0.08 },
+        "-=0.6",
       );
 
-      let t = tl.duration() + 0.12;
+      let t = tl.duration() + 0.2;
       const openAt = t;
       const frontPage = sheets[FLIPS];
 
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
-        // Soft page turn: sine easing + shade that peaks mid-flip.
         tl.set(sheet, { zIndex: 100 }, t)
-          .to(sheet, { rotateY: -180, duration: FLIP, ease: "sine.inOut" }, t)
-          .to(sheet, { "--shade": 0.45, duration: FLIP * 0.45, ease: "sine.out" }, t)
-          .to(sheet, { "--shade": 0, duration: FLIP * 0.55, ease: "sine.in" }, t + FLIP * 0.45)
-          .set(sheet, { zIndex: 50 + i, z: 0 }, t + FLIP);
+          .to(sheet, { rotateY: -180, duration: FLIP, ease: "power2.inOut" }, t)
+          .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
+          .to(sheet, { "--shade": 0, duration: FLIP / 2, ease: "sine.out" }, t + FLIP / 2)
+          .set(sheet, { zIndex: 50 + i }, t + FLIP);
         if (i === 0) {
-          tl.to(paper, { xPercent: 0, duration: FLIP + 0.15, ease: "power2.inOut" }, t);
+          tl.to(paper, { xPercent: 0, duration: FLIP + 0.3, ease: EASE.inOut }, t);
         }
         t += GAP;
       }
 
       const flipsEnd = t - GAP + FLIP;
-      let lastShown = -1;
 
       tl.to(
         counter,
         {
           value: 100,
           duration: flipsEnd - openAt,
-          ease: "none",
+          ease: "power1.inOut",
           onUpdate: () => {
-            if (!counterEl) return;
-            const next = Math.round(counter.value);
-            if (next === lastShown) return;
-            lastShown = next;
-            counterEl.textContent = String(next).padStart(3, "0");
+            if (counterEl) counterEl.textContent = String(Math.round(counter.value)).padStart(3, "0");
           },
         },
         openAt,
-      ).to(progress, { scaleX: 1, duration: flipsEnd - openAt, ease: "none" }, openAt);
+      ).to(progress, { scaleX: 1, duration: flipsEnd - openAt, ease: "power1.inOut" }, openAt);
 
       // Right page (home sketch) zooms flush onto the screen, then the real
       // hero/header entrance plays underneath as the paper dissolves.
-      const zoom = flipsEnd + 0.35;
+      const zoom = flipsEnd + 0.55;
       const turned = sheets.slice(0, FLIPS);
       const shadow = q("[data-shadow]");
-      const ZOOM = 1.15;
+      const ZOOM = 1.3;
 
       const fit = { scale: 1, x: 0, y: 0 };
       const measureFit = () => {
@@ -308,9 +296,9 @@ export function Preloader() {
       };
 
       tl.add(measureFit, zoom)
-        .set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
-        .to(meta, { autoAlpha: 0, duration: 0.25, ease: EASE.soft }, zoom - 0.08)
-        .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.35, ease: EASE.soft }, zoom)
+        .set(frontPage, { zIndex: 200, transformOrigin: "0 0", force3D: true }, zoom)
+        .to(meta, { autoAlpha: 0, duration: 0.3 }, zoom - 0.1)
+        .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.4, ease: "power2.out" }, zoom)
         .to(
           frontPage,
           {
@@ -318,12 +306,13 @@ export function Preloader() {
             x: () => fit.x,
             y: () => fit.y,
             duration: ZOOM,
-            ease: "power2.inOut",
+            ease: "power3.inOut",
+            force3D: true,
           },
           zoom,
         )
-        .add(() => markPreloaderDone(), zoom + ZOOM * 0.85)
-        .to(root, { autoAlpha: 0, duration: 0.55, ease: EASE.soft }, zoom + ZOOM * 0.9);
+        .add(() => markPreloaderDone(), zoom + ZOOM)
+        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + ZOOM + 0.05);
 
       return () => {
         html.style.overflow = prevOverflow;
