@@ -9,6 +9,7 @@ import { PortraitPlaceholder } from "@/components/ui/PortraitPlaceholder";
 import { Ticker } from "@/components/ui/Ticker";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
+import { whenPreloaderDone } from "@/lib/preloader";
 
 function BrandIcon({ path, scale = 1 }: { path: string; scale?: number }) {
   return (
@@ -88,11 +89,12 @@ export function HomeSection({ info }: HomeSectionProps) {
         const q = gsap.utils.selector(root);
         const tl = gsap.timeline({
           defaults: { ease: EASE.expo, duration: 0.9 },
-          delay: 0.15,
+          paused: true,
         });
 
         // Everything flagged becomes visible; individual tweens handle state.
-        tl.set(reveal, { visibility: "visible" })
+        // The short lead-in lets the preloader start lifting before we move.
+        tl.set(reveal, { visibility: "visible" }, 0.15)
           .from(q("[data-hero='masthead'] > *"), { y: 10, autoAlpha: 0, duration: 0.6, stagger: 0.08 })
           .from(q("[data-hero='headline'] [data-line]"), { yPercent: 110, duration: 1.05, stagger: 0.12 }, "-=0.3")
           .from(q("[data-hero='underline']"), { scaleX: 0, transformOrigin: "left center", duration: 0.8 }, "-=0.6")
@@ -116,6 +118,9 @@ export function HomeSection({ info }: HomeSectionProps) {
             { autoAlpha: 0, y: 10, duration: 0.65 },
             "-=0.7",
           );
+
+        // Start once the entry preloader hands over (immediately if absent).
+        return whenPreloaderDone(() => tl.play(0));
       });
     },
     { scope: ref },

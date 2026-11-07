@@ -7,6 +7,7 @@ import type { NavItem, SectionId } from "@/types/portfolio";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
+import { whenPreloaderDone } from "@/lib/preloader";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -65,7 +66,15 @@ export function Header({ name, shortName, items, email }: HeaderProps) {
   useGSAP(
     () => {
       if (!ref.current || window.matchMedia(MEDIA.reduce).matches) return;
-      gsap.from(ref.current, { y: -16, autoAlpha: 0, duration: 0.7, ease: EASE.out, delay: 0.1 });
+      const tween = gsap.from(ref.current, {
+        y: -16,
+        autoAlpha: 0,
+        duration: 0.7,
+        ease: EASE.out,
+        paused: true,
+      });
+      // Wait for the entry preloader when one is on the page.
+      return whenPreloaderDone(() => tween.play(0));
     },
     { scope: ref },
   );

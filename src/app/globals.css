@@ -319,3 +319,252 @@ html.motion [data-hero-reveal] {
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Site-entry preloader: a newspaper whose pages turn                  */
+/* ------------------------------------------------------------------ */
+
+/*
+  Server-rendered so it covers the page before hydration. Only shown when
+  `html.motion` is present (JS available, motion allowed); otherwise it is
+  never displayed and the hero reveals normally.
+*/
+.preloader {
+  --sheet-w: clamp(7.25rem, min(36vw, 34vh), 17rem);
+  --sheet-h: calc(var(--sheet-w) * 1.32);
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--background);
+  color: var(--foreground);
+  will-change: transform;
+}
+
+html.motion .preloader {
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+.preloader-stage {
+  display: grid;
+  place-items: center;
+  padding: 2rem clamp(1rem, 3.5vw, 3.5rem);
+}
+
+.preloader-paper {
+  position: relative;
+  width: calc(var(--sheet-w) * 2);
+  height: var(--sheet-h);
+}
+
+.preloader-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -7%;
+  width: 46%;
+  height: 16%;
+  background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.3), transparent 70%);
+  filter: blur(8px);
+}
+
+.sheet {
+  --shade: 0;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.sheet-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  container-type: inline-size;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.04);
+}
+
+/* Fake lighting while the page turns, darkest along the spine. */
+.sheet-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to right, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.08) 45%, transparent 75%);
+  opacity: var(--shade);
+}
+
+.sheet-face-back {
+  transform: rotateY(180deg);
+}
+
+/* The back face is mirrored, so its spine is on the right. */
+.sheet-face-back::after {
+  background: linear-gradient(to left, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.08) 45%, transparent 75%);
+}
+
+/* Page content — sizes follow the sheet via container units. */
+.np {
+  --np-ink: color-mix(in srgb, var(--foreground) 15%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 3.2cqi;
+  height: 100%;
+  padding: 6cqi 6cqi 5cqi;
+  text-align: left;
+}
+
+.np-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 3cqi;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.np-between {
+  display: flex;
+  justify-content: space-between;
+  gap: 2cqi;
+}
+
+.np-rule {
+  height: 1px;
+  background: var(--foreground);
+  flex: none;
+}
+
+.np-rule-thick {
+  height: 2.2cqi;
+}
+
+.np-masthead {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 13.5cqi;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-block: 1cqi;
+}
+
+.np-headline {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 8.2cqi;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.np-quote {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 7.4cqi;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  margin-block: 2cqi;
+}
+
+.np-caption {
+  font-family: var(--font-body);
+  font-size: 3.1cqi;
+  line-height: 1.35;
+  color: var(--muted-foreground);
+}
+
+.np-cols {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+  gap: 4cqi;
+}
+
+.np-lines {
+  height: calc(var(--n, 6) * 3.4cqi);
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--np-ink) 0 1.4cqi,
+    transparent 1.4cqi 3.4cqi
+  );
+  /* Shorter final line, as in set type. */
+  mask: linear-gradient(#000, #000) top / 100% calc(100% - 3.4cqi) no-repeat,
+    linear-gradient(#000, #000) bottom left / 62% 3.4cqi no-repeat;
+}
+
+.np-figure {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--muted);
+}
+
+.np-figure-wide {
+  aspect-ratio: 16 / 9;
+}
+
+.np-figure::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 22%;
+  height: 12%;
+  background: var(--accent);
+}
+
+.np-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.np-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 2cqi;
+  padding-block: 1.8cqi;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 2.9cqi;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.np-row > span:first-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.preloader-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0 clamp(1rem, 3.5vw, 3.5rem) 1.5rem;
+  color: var(--muted-foreground);
+}
+
+.preloader-progress {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.preloader-progress > i {
+  position: absolute;
+  inset: 0;
+  background: var(--foreground);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
