@@ -221,7 +221,11 @@ export function Preloader() {
       const FLIP = 0.72; // one page turn
       const GAP = 0.5; // time between successive turns
 
-      gsap.set(sheets, { transformPerspective: 1600, transformOrigin: "left center" });
+      const paperWidth = (paper[0] as HTMLElement | undefined)?.offsetWidth ?? 800;
+      gsap.set(sheets, {
+        transformPerspective: Math.max(1600, paperWidth * 1.6),
+        transformOrigin: "left center",
+      });
       sheets.forEach((sheet, i) => gsap.set(sheet, { zIndex: sheets.length - i }));
       // Closed newspaper: centre the right-hand stack, open into a spread later.
       gsap.set(paper, { xPercent: -25 });
