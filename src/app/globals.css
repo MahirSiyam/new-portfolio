@@ -339,7 +339,9 @@ html.motion [data-hero-reveal] {
   z-index: 200;
   background: var(--background);
   color: var(--foreground);
-  will-change: transform;
+  pointer-events: none;
+  contain: layout paint;
+  isolation: isolate;
 }
 
 html.motion .preloader {
@@ -352,19 +354,18 @@ html.motion .preloader {
   display: grid;
   place-items: center;
   padding: 1.25rem clamp(0.75rem, 2.5vw, 2.5rem) 0.75rem;
+  perspective: 1800px;
+  perspective-origin: 50% 45%;
 }
 
 .preloader-paper {
   position: relative;
   width: calc(var(--sheet-w) * 2);
   height: var(--sheet-h);
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
-/*
-  Final right-hand page is a window: it has no fill of its own, so the real
-  site — scaled into this exact rectangle by the preloader — shows through it.
-  The zoom then scales the site back to 1:1 and the page *is* the landing page.
-*/
 /*
   Right-hand home sketch: real headline + tagline, blank blocks for copy,
   image and CTAs. Stacked on small pages, text | photo on large ones.
@@ -557,11 +558,12 @@ html.motion .preloader {
 .preloader-shadow {
   position: absolute;
   left: 50%;
-  bottom: -7%;
-  width: 46%;
-  height: 16%;
-  background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.3), transparent 70%);
-  filter: blur(8px);
+  bottom: -6%;
+  width: 44%;
+  height: 14%;
+  background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.22), transparent 72%);
+  opacity: 0.85;
+  transform: translateZ(0);
 }
 
 .sheet {
@@ -574,6 +576,7 @@ html.motion .preloader {
   transform-style: preserve-3d;
   transform-origin: left center;
   will-change: transform;
+  contain: layout style;
 }
 
 .sheet-face {
@@ -585,6 +588,7 @@ html.motion .preloader {
   container-type: inline-size;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
   box-shadow: 0 1px 0 rgb(0 0 0 / 0.04);
 }
 
@@ -594,8 +598,9 @@ html.motion .preloader {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(to right, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.08) 45%, transparent 75%);
+  background: linear-gradient(to right, rgb(0 0 0 / 0.42), rgb(0 0 0 / 0.06) 45%, transparent 78%);
   opacity: var(--shade);
+  will-change: opacity;
 }
 
 .sheet-face-back {
