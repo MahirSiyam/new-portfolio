@@ -348,14 +348,204 @@ html.motion .preloader {
 
 .preloader-stage {
   display: grid;
+  grid-template: 1fr / 1fr;
   place-items: center;
   padding: 2rem clamp(1rem, 3.5vw, 3.5rem);
 }
 
 .preloader-paper {
+  grid-area: 1 / 1;
   position: relative;
   width: calc(var(--sheet-w) * 2);
   height: var(--sheet-h);
+}
+
+/* Final "front page": a miniature of the hero that zooms into the real one. */
+.preloader-landing {
+  grid-area: 1 / 1;
+  position: relative;
+  width: calc(var(--sheet-w) * 2);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--background);
+  border: 1px solid var(--border);
+  container-type: inline-size;
+  box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.35);
+  will-change: transform, opacity;
+}
+
+.lp {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: var(--foreground);
+  font-family: var(--font-body);
+}
+
+.lp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.6cqi 3cqi;
+  border-bottom: 1px solid var(--border);
+}
+
+.lp-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9cqi;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.4cqi;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.lp-brand::before {
+  content: "";
+  width: 1.1cqi;
+  height: 1.1cqi;
+  background: var(--accent);
+}
+
+.lp-nav {
+  display: flex;
+  gap: 2cqi;
+  font-family: var(--font-mono);
+  font-size: 1.15cqi;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.lp-nav > span:first-child {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.45cqi;
+}
+
+.lp-masthead {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1.4cqi 3cqi 0;
+  font-family: var(--font-mono);
+  font-size: 1.2cqi;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.lp-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  align-items: center;
+  gap: 3cqi;
+  padding: 1cqi 3cqi 3cqi;
+}
+
+.lp-headline {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 6.2cqi;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.lp-headline > span {
+  display: block;
+}
+
+.lp-underline {
+  display: block;
+  width: 9cqi;
+  height: 0.6cqi;
+  margin-top: 1.6cqi;
+  background: var(--accent);
+}
+
+.lp-tagline {
+  margin-top: 1.6cqi;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.6cqi;
+  line-height: 1;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--foreground) 90%, transparent);
+}
+
+.lp-copy {
+  margin-top: 1.2cqi;
+  max-width: 82%;
+  font-size: 1.3cqi;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.lp-cta {
+  display: flex;
+  gap: 1.2cqi;
+  margin-top: 1.8cqi;
+}
+
+.lp-btn {
+  padding: 1cqi 1.8cqi;
+  border: 1px solid var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 1.05cqi;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lp-btn-primary {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.lp-figure {
+  position: relative;
+  width: 92%;
+  margin-left: auto;
+  padding-bottom: 8%;
+}
+
+.lp-backdrop {
+  position: absolute;
+  top: 8%;
+  right: 0;
+  bottom: 0;
+  left: 12%;
+  background: var(--accent);
+}
+
+.lp-portrait {
+  position: relative;
+  margin-right: 10%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #1a1a1a;
+}
+
+.lp-portrait-img {
+  object-fit: cover;
+  object-position: center 18%;
+  filter: grayscale(1) contrast(1.08);
+  transform: scale(1.18);
+}
+
+.lp-portrait-name {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 4cqi 1.2cqi 1.2cqi;
+  background: linear-gradient(to top, #000, rgb(0 0 0 / 0.7), transparent);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 1.9cqi;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #fff;
 }
 
 .preloader-shadow {
