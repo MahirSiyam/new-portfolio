@@ -119,8 +119,9 @@ export function HomeSection({ info }: HomeSectionProps) {
             "-=0.7",
           );
 
-        // Start once the entry preloader hands over (immediately if absent).
-        return whenPreloaderDone(() => tl.play(0));
+        // Newspaper hand-off: already showing through the page → settle.
+        // Otherwise play the normal entrance.
+        return whenPreloaderDone((mode) => (mode === "settle" ? tl.progress(1) : tl.play(0)));
       });
     },
     { scope: ref },

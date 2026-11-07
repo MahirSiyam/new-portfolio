@@ -233,20 +233,12 @@ export function Preloader() {
       const applyClip = () => {
         if (site) site.style.clipPath = `inset(0 0 calc(100% - ${geo.clipH}px) 0)`;
       };
-      // Show the real home page through the window for the newspaper spread,
-      // without firing the entrance hand-off yet — that plays after the zoom.
-      const showHomePreview = () => {
-        gsap.set(document.querySelectorAll<HTMLElement>("[data-hero-reveal]"), {
-          visibility: "visible",
-          clearProps: "transform,opacity,clipPath",
-        });
-        const header = document.querySelector<HTMLElement>("header");
-        if (header) gsap.set(header, { autoAlpha: 1, y: 0 });
-      };
 
       const siteIntoWindow = () => {
         if (!site || !frontPage) return;
-        showHomePreview();
+        // Settle hero/header to their final state once — the page shows the
+        // real home, then zooms; no second entrance after the dissolve.
+        markPreloaderDone();
         const rect = frontPage.getBoundingClientRect();
         // Show header + hero only; the rest of the page stays blank paper.
         const heroBottom = document.getElementById("home")?.getBoundingClientRect().bottom ?? Infinity;
@@ -254,13 +246,13 @@ export function Preloader() {
         geo.x = rect.left;
         geo.y = rect.top;
         geo.clipH = Math.min(rect.height / geo.scale, heroBottom + window.scrollY);
-        // Blank newsprint starts right under the hero on the window page.
         frontPage.style.setProperty("--hero-h", `${geo.clipH * geo.scale}px`);
         gsap.set(site, {
           transformOrigin: "0 0",
           x: geo.x,
           y: geo.y,
           scale: geo.scale,
+          force3D: true,
           willChange: "transform",
         });
         applyClip();
@@ -312,12 +304,15 @@ export function Preloader() {
       const shadow = q("[data-shadow]");
       const ZOOM = 1.3;
 
-      tl.set(frontPage, { zIndex: 200, transformOrigin: "0 0" }, zoom)
-        .to(meta, { autoAlpha: 0, duration: 0.35 }, zoom - 0.1)
-        .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom)
-        // The blank newsprint under the hero gives way to the real page below.
-        .to(q("[data-window-lines]"), { autoAlpha: 0, duration: ZOOM * 0.6, ease: "power2.out" }, zoom)
-        // The page frame grows with the site so its edges stay on the content.
+      // One continuous morph: page frame + site scale together, blank lines
+      // fade, then the overlay dissolves onto the already-settled home page.
+      tl.set(frontPage, { zIndex: 200, transformOrigin: "0 0", force3D: true }, zoom)
+        .to(meta, { autoAlpha: 0, duration: 0.3 }, zoom - 0.1)
+        .to([...turned, ...shadow, ...q("[data-window-lines]")], {
+          autoAlpha: 0,
+          duration: 0.4,
+          ease: "power2.out",
+        }, zoom)
         .to(
           frontPage,
           {
@@ -326,12 +321,13 @@ export function Preloader() {
             y: () => -geo.y,
             duration: ZOOM,
             ease: "power3.inOut",
+            force3D: true,
           },
           zoom,
         )
         .to(
           site ?? [],
-          { x: 0, y: 0, scale: 1, duration: ZOOM, ease: "power3.inOut" },
+          { x: 0, y: 0, scale: 1, duration: ZOOM, ease: "power3.inOut", force3D: true },
           zoom,
         )
         .to(
@@ -344,11 +340,11 @@ export function Preloader() {
           },
           zoom,
         )
-        .add(releaseSite, zoom + ZOOM)
-        // Hand over while the paper still covers the screen so the hero can
-        // reset into its entrance start state unseen, then dissolve into it.
-        .add(() => markPreloaderDone(), zoom + ZOOM)
-        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + ZOOM + 0.05);
+        .add(() => {
+          releaseSite();
+          html.style.overflow = prevOverflow;
+        }, zoom + ZOOM)
+        .to(root, { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom + ZOOM);
 
       return () => {
         releaseSite();
