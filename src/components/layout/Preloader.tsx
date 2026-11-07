@@ -4,6 +4,7 @@ import { useRef, useState, type CSSProperties } from "react";
 import { about, personalInfo } from "@/data/portfolio";
 import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
 import { isPreloaderDone, markPreloaderDone } from "@/lib/preloader";
+import { playPageFlip, unlockAudio } from "@/lib/page-flip-sound";
 
 /* ------------------------------------------------------------------ */
 /* Newspaper page content (decorative, scaled with container units)    */
@@ -210,6 +211,10 @@ export function Preloader() {
       html.style.overflow = "hidden";
       window.scrollTo(0, 0);
 
+      // Browsers gate audio behind a gesture; unlock on the first one.
+      const gestures = ["pointerdown", "keydown", "touchstart"] as const;
+      gestures.forEach((type) => window.addEventListener(type, unlockAudio, { once: true, passive: true }));
+
       const q = gsap.utils.selector(root);
       const paper = q("[data-paper]");
       const sheets = q<HTMLElement>("[data-sheet]");
@@ -246,6 +251,7 @@ export function Preloader() {
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
         tl.set(sheet, { zIndex: 100 }, t)
+          .add(() => playPageFlip(FLIP), t)
           .to(sheet, { rotateY: -180, duration: FLIP, ease: "power2.inOut" }, t)
           .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
           .to(sheet, { "--shade": 0, duration: FLIP / 2, ease: "sine.out" }, t + FLIP / 2)
@@ -294,6 +300,7 @@ export function Preloader() {
         .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + 0.6);
       return () => {
         html.style.overflow = prevOverflow;
+        gestures.forEach((type) => window.removeEventListener(type, unlockAudio));
       };
     },
     { scope: ref },
