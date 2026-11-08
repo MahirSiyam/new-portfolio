@@ -17,7 +17,7 @@ type Variant =
   | "harborWatch"
   | "atlasSpread"
   | "colophon"
-  | "home"
+  | "window"
   | "closingMark";
 
 function Lines({ n, className = "" }: { n: number; className?: string }) {
@@ -189,50 +189,24 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    case "home":
+    // See-through page: real header + hero show through the top; blank
+    // newsprint fills the rest so it still reads as a full newspaper leaf.
+    case "window":
       return (
-        <div className="np np-home">
-          <div className="np-home-header">
-            <span className="np-home-brand">The Signal</span>
-            <span className="np-home-nav">
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-          </div>
-          <div className="np-rule" />
-          <p className="np-home-masthead">Printed at dawn</p>
-          <div className="np-home-hero">
-            <div className="np-home-text">
-              <p className="np-home-headline">
-                {["HOLD THE LINE", "UNTIL THE INK", "SETTLES CLEAN.", "TURN THE PAGE."].map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-              </p>
-              <span className="np-home-underline" />
-              <p className="np-home-tagline">A morning paper for restless minds.</p>
-              <Lines n={3} className="np-home-copy" />
-              <div className="np-home-socials">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="np-home-cta">
-                <span className="np-block" />
-                <span className="np-block np-block-outline" />
-              </div>
+        <div className="np np-window">
+          <div className="np-window-hero" />
+          <div data-window-lines className="np np-window-body">
+            <div className="np-rule" />
+            <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
+              <Lines n={9} />
+              <Lines n={9} />
+              <Lines n={9} />
             </div>
-            <div className="np-home-figure">
-              <span className="np-home-backdrop" />
-              <div className="np-home-portrait" />
+            <div className="np-rule" />
+            <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
+              <Lines n={8} />
+              <Lines n={8} />
             </div>
-          </div>
-          <div className="np-rule" />
-          <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
-            <Lines n={7} />
-            <Lines n={7} />
-            <Lines n={7} />
           </div>
         </div>
       );
@@ -271,7 +245,7 @@ const SHEETS: [Variant, Variant][] = [
   ["photoPlate", "marginNote"],
   ["morningBrief", "harborWatch"],
   ["atlasSpread", "colophon"],
-  ["home", "closingMark"],
+  ["window", "closingMark"],
 ];
 
 /** Sheets that turn before the site is revealed; the last stays as the right page. */
@@ -308,6 +282,10 @@ export function Preloader() {
       const q = gsap.utils.selector(root);
       const paper = q("[data-paper]");
       const sheets = q<HTMLElement>("[data-sheet]");
+      const site = document.querySelector<HTMLElement>("[data-site]");
+      const releaseSite = () => {
+        if (site) gsap.set(site, { clearProps: "transform,transformOrigin,clipPath,willChange" });
+      };
 
       const FLIP = 0.72;
       const GAP = 0.5;
@@ -322,6 +300,7 @@ export function Preloader() {
       const tl = gsap.timeline({
         defaults: { ease: EASE.expo },
         onComplete: () => {
+          releaseSite();
           html.style.overflow = prevOverflow;
           setHidden(true);
         },
@@ -333,8 +312,43 @@ export function Preloader() {
       let t = tl.duration() + 0.2;
       const frontPage = sheets[FLIPS];
 
+      // Real site scaled into the window page, then grown back to 1:1.
+      const geo = { scale: 1, x: 0, y: 0, clipH: 0 };
+      const applyClip = () => {
+        if (site) site.style.clipPath = `inset(0 0 calc(100% - ${geo.clipH}px) 0)`;
+      };
+      const siteIntoWindow = () => {
+        if (!site || !frontPage) return;
+        // Settle hero/header so the real homepage shows through the page.
+        markPreloaderDone();
+        const rect = frontPage.getBoundingClientRect();
+        const heroBottom = document.getElementById("home")?.getBoundingClientRect().bottom ?? Infinity;
+        geo.scale = rect.width / window.innerWidth;
+        geo.x = rect.left;
+        geo.y = rect.top;
+        geo.clipH = Math.min(rect.height / geo.scale, heroBottom + window.scrollY);
+        frontPage.style.setProperty("--hero-h", `${geo.clipH * geo.scale}px`);
+        gsap.set(site, {
+          transformOrigin: "0 0",
+          x: geo.x,
+          y: geo.y,
+          scale: geo.scale,
+          force3D: true,
+          willChange: "transform",
+        });
+        applyClip();
+        root.classList.add("is-window");
+      };
+
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
+        if (i === FLIPS - 1) {
+          tl.add(siteIntoWindow, t - 0.02).to(
+            q("[data-shadow]"),
+            { autoAlpha: 0, duration: FLIP, ease: "power1.out" },
+            t - 0.02,
+          );
+        }
         tl.set(sheet, { zIndex: 100 }, t)
           .to(sheet, { rotateY: -180, duration: FLIP, ease: "power2.inOut" }, t)
           .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
@@ -345,43 +359,49 @@ export function Preloader() {
 
       const flipsEnd = t - GAP + FLIP;
 
-      // Right page (home sketch) zooms flush onto the screen, then the real
-      // hero/header entrance plays underneath as the paper dissolves.
+      // Window page + real site zoom together onto the screen, then dissolve.
       const zoom = flipsEnd + 0.55;
       const turned = sheets.slice(0, FLIPS);
       const shadow = q("[data-shadow]");
       const ZOOM = 1.3;
 
-      const fit = { scale: 1, x: 0, y: 0 };
-      const measureFit = () => {
-        if (!frontPage) return;
-        const rect = frontPage.getBoundingClientRect();
-        let scale = window.innerWidth / rect.width;
-        if (rect.height * scale < window.innerHeight) scale = window.innerHeight / rect.height;
-        fit.scale = scale;
-        fit.x = (window.innerWidth - rect.width * scale) / 2 - rect.left;
-        fit.y = -rect.top;
-      };
-
-      tl.add(measureFit, zoom)
-        .set(frontPage, { zIndex: 200, transformOrigin: "0 0", force3D: true }, zoom)
-        .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.4, ease: "power2.out" }, zoom)
+      tl.set(frontPage, { zIndex: 200, transformOrigin: "0 0", force3D: true }, zoom)
+        .to([...turned, ...shadow, ...q("[data-window-lines]")], {
+          autoAlpha: 0,
+          duration: 0.4,
+          ease: "power2.out",
+        }, zoom)
         .to(
           frontPage,
           {
-            scale: () => fit.scale,
-            x: () => fit.x,
-            y: () => fit.y,
+            scale: () => 1 / geo.scale,
+            x: () => -geo.x,
+            y: () => -geo.y,
             duration: ZOOM,
             ease: "power3.inOut",
             force3D: true,
           },
           zoom,
         )
-        .add(() => markPreloaderDone(), zoom + ZOOM)
-        .to(root, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, zoom + ZOOM + 0.05);
+        .to(site ?? [], { x: 0, y: 0, scale: 1, duration: ZOOM, ease: "power3.inOut", force3D: true }, zoom)
+        .to(
+          geo,
+          {
+            clipH: () => window.innerHeight,
+            duration: ZOOM,
+            ease: "power3.inOut",
+            onUpdate: applyClip,
+          },
+          zoom,
+        )
+        .add(() => {
+          releaseSite();
+          html.style.overflow = prevOverflow;
+        }, zoom + ZOOM)
+        .to(root, { autoAlpha: 0, duration: 0.45, ease: "power2.out" }, zoom + ZOOM);
 
       return () => {
+        releaseSite();
         html.style.overflow = prevOverflow;
       };
     },
@@ -397,7 +417,7 @@ export function Preloader() {
           <span data-shadow className="preloader-shadow" />
           {SHEETS.map(([front, back], i) => (
             <div key={i} data-sheet className="sheet" style={{ zIndex: SHEETS.length - i }}>
-              <div className="sheet-face">
+              <div className={front === "window" ? "sheet-face sheet-face-window" : "sheet-face"}>
                 <Face variant={front} />
               </div>
               <div className="sheet-face sheet-face-back">
