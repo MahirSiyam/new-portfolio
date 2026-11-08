@@ -365,31 +365,101 @@ html.motion .preloader {
   site — scaled into this exact rectangle by the preloader — shows through it.
   The zoom then scales the site back to 1:1 and the page *is* the landing page.
 */
-/* Final right page is a window onto the real homepage. */
-.sheet-face.sheet-face-window {
-  background: transparent;
-  box-shadow: none;
-}
-
-.preloader.is-window {
-  background: transparent;
-}
-
-.np-window {
-  gap: 0;
-  padding: 0;
-}
-
-.np-window-hero {
-  flex: none;
-  height: var(--hero-h, 58%);
-}
-
-.np-window-body {
-  flex: 1;
-  height: auto;
-  min-height: 0;
+/*
+  Blank home-shaped leaf the zoom lands on. No site copy — just newsprint
+  blocks that dissolve into the real hero entrance underneath.
+*/
+.np-blank {
   padding-top: 4cqi;
+}
+
+.np-blank-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1cqi;
+}
+
+.np-blank-brand {
+  width: 16cqi;
+  height: 3.6cqi;
+  background: var(--foreground);
+}
+
+.np-blank-nav {
+  display: flex;
+  gap: 2.4cqi;
+}
+
+.np-blank-nav > i {
+  width: 7cqi;
+  height: 1.4cqi;
+  background: var(--np-ink);
+}
+
+.np-blank-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4cqi;
+  padding-block: 2cqi 1cqi;
+}
+
+.np-lines.np-lines-display {
+  --np-ink: color-mix(in srgb, var(--foreground) 80%, transparent);
+  height: calc(var(--n, 4) * 7cqi);
+  background: repeating-linear-gradient(to bottom, var(--np-ink) 0 5.2cqi, transparent 5.2cqi 7cqi);
+  mask: linear-gradient(#000, #000) top / 100% calc(100% - 7cqi) no-repeat,
+    linear-gradient(#000, #000) bottom left / 55% 7cqi no-repeat;
+}
+
+.np-blank-underline {
+  display: block;
+  width: 14cqi;
+  height: 1cqi;
+  margin-block: 2.4cqi;
+  background: var(--accent);
+}
+
+.np-blank-cta {
+  display: flex;
+  gap: 1.6cqi;
+  margin-top: 3cqi;
+}
+
+.np-blank-cta > span {
+  width: 17cqi;
+  height: 5.2cqi;
+}
+
+.np-block {
+  display: inline-block;
+  background: var(--foreground);
+}
+
+.np-block-outline {
+  background: transparent;
+  border: 1px solid var(--foreground);
+}
+
+.np-figure.np-figure-tall {
+  aspect-ratio: 4 / 5;
+  order: -1;
+  width: 60%;
+  margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+  .np-blank-hero {
+    grid-template-columns: 7fr 5fr;
+    align-items: center;
+    gap: 5cqi;
+  }
+
+  .np-figure.np-figure-tall {
+    order: 0;
+    width: 100%;
+    margin-inline: 0;
+  }
 }
 
 .preloader-shadow {

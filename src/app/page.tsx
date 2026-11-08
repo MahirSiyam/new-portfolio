@@ -25,30 +25,28 @@ export default function Page() {
   return (
     <>
       <Preloader />
-      <div data-site className="flex flex-1 flex-col">
-        <a
-          href="#home"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-accent focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.18em] focus:text-accent-foreground"
-        >
-          Skip to content
-        </a>
-        <Header
-          name={personalInfo.name}
-          shortName={personalInfo.shortName}
-          items={navigation}
-          email={personalInfo.email}
-        />
-        <main id="main" className="flex-1">
-          <HomeSection info={personalInfo} />
-          <AboutSection />
-          <ExperienceSection />
-          <SkillsSection />
-          <ProjectsSection />
-          <EducationSection />
-          <ContactSection />
-        </main>
-        <Footer />
-      </div>
+      <a
+        href="#home"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-accent focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.18em] focus:text-accent-foreground"
+      >
+        Skip to content
+      </a>
+      <Header
+        name={personalInfo.name}
+        shortName={personalInfo.shortName}
+        items={navigation}
+        email={personalInfo.email}
+      />
+      <main id="main" className="flex-1">
+        <HomeSection info={personalInfo} />
+        <AboutSection />
+        <ExperienceSection />
+        <SkillsSection />
+        <ProjectsSection />
+        <EducationSection />
+        <ContactSection />
+      </main>
+      <Footer />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
