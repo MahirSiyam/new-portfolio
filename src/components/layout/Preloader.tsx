@@ -214,11 +214,6 @@ export function Preloader() {
       const q = gsap.utils.selector(root);
       const paper = q("[data-paper]");
       const sheets = q<HTMLElement>("[data-sheet]");
-      const meta = q("[data-meta]");
-      const metaItems = q("[data-meta] > *");
-      const progress = q("[data-progress]");
-      const counterEl = root.querySelector<HTMLElement>("[data-counter]");
-      const counter = { value: 0 };
 
       const FLIP = 0.72;
       const GAP = 0.5;
@@ -239,14 +234,9 @@ export function Preloader() {
       });
 
       // Soft fade only — no y/x travel (those read as a bounce on reload).
-      tl.from(paper, { autoAlpha: 0, duration: 0.55, ease: "power1.out" }).from(
-        metaItems,
-        { autoAlpha: 0, duration: 0.4, stagger: 0.06, ease: "power1.out" },
-        "-=0.3",
-      );
+      tl.from(paper, { autoAlpha: 0, duration: 0.55, ease: "power1.out" });
 
       let t = tl.duration() + 0.2;
-      const openAt = t;
       const frontPage = sheets[FLIPS];
 
       for (let i = 0; i < FLIPS; i++) {
@@ -260,19 +250,6 @@ export function Preloader() {
       }
 
       const flipsEnd = t - GAP + FLIP;
-
-      tl.to(
-        counter,
-        {
-          value: 100,
-          duration: flipsEnd - openAt,
-          ease: "power1.inOut",
-          onUpdate: () => {
-            if (counterEl) counterEl.textContent = String(Math.round(counter.value)).padStart(3, "0");
-          },
-        },
-        openAt,
-      ).to(progress, { scaleX: 1, duration: flipsEnd - openAt, ease: "power1.inOut" }, openAt);
 
       // Right page (home sketch) zooms flush onto the screen, then the real
       // hero/header entrance plays underneath as the paper dissolves.
@@ -294,7 +271,6 @@ export function Preloader() {
 
       tl.add(measureFit, zoom)
         .set(frontPage, { zIndex: 200, transformOrigin: "0 0", force3D: true }, zoom)
-        .to(meta, { autoAlpha: 0, duration: 0.3 }, zoom - 0.1)
         .to([...turned, ...shadow], { autoAlpha: 0, duration: 0.4, ease: "power2.out" }, zoom)
         .to(
           frontPage,
@@ -336,18 +312,6 @@ export function Preloader() {
             </div>
           ))}
         </div>
-      </div>
-
-      <div data-meta className="preloader-meta">
-        <span className="eyebrow">
-          {personalInfo.edition.volume} — {personalInfo.edition.label}
-        </span>
-        <span className="preloader-progress">
-          <i data-progress />
-        </span>
-        <span className="eyebrow tabular-nums">
-          <span data-counter>000</span> / 100
-        </span>
       </div>
     </div>
   );
