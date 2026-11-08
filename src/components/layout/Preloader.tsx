@@ -5,30 +5,20 @@ import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
 import { isPreloaderDone, markPreloaderDone } from "@/lib/preloader";
 
 /* ------------------------------------------------------------------ */
-/* Decorative newsprint — intentionally different from site copy       */
+/* Decorative newsprint — every face has unique copy, none repeats     */
 /* ------------------------------------------------------------------ */
 
-const PRESS = {
-  issue: "No. 214",
-  section: "Morning Dispatch",
-  masthead: "The Daily Signal",
-  desk: "City desk",
-  city: "Late edition",
-  coverLead: "CITY WAKES TO A QUIETER HORIZON AFTER THE STORM",
-  storyEyebrow: "Inside the archive",
-  storyLead: "NOTES FROM A LONG WEEK ON THE PRINTING FLOOR",
-  figureEyebrow: "Photo plate",
-  figureCaption: "Press room, early light.",
-  quote: "Ink still drying. Hold the page by the edges.",
-  indexTitle: "Today’s brief",
-  indexItems: ["Weather & tide", "Market ledger", "Letters desk", "Classifieds", "Sports wrap"],
-  homeBrand: "The Signal",
-  homePlace: "Printed at dawn",
-  homeHeadline: ["HOLD THE LINE", "UNTIL THE INK", "SETTLES CLEAN.", "TURN THE PAGE."],
-  homeTagline: "A morning paper for restless minds.",
-};
-
-type Variant = "cover" | "story" | "figure" | "quote" | "index" | "home";
+type Variant =
+  | "cover"
+  | "pressFloor"
+  | "photoPlate"
+  | "marginNote"
+  | "morningBrief"
+  | "harborWatch"
+  | "atlasSpread"
+  | "colophon"
+  | "home"
+  | "closingMark";
 
 function Lines({ n, className = "" }: { n: number; className?: string }) {
   return <div className={`np-lines ${className}`} style={{ "--n": n } as CSSProperties} />;
@@ -40,17 +30,17 @@ function Face({ variant }: { variant: Variant }) {
       return (
         <div className="np">
           <div className="np-eyebrow np-between">
-            <span>{PRESS.issue}</span>
-            <span>{PRESS.section}</span>
+            <span>No. 214</span>
+            <span>Morning Dispatch</span>
           </div>
           <div className="np-rule np-rule-thick" />
-          <p className="np-masthead">{PRESS.masthead}</p>
+          <p className="np-masthead">The Daily Signal</p>
           <div className="np-rule" />
           <div className="np-eyebrow np-between">
-            <span>{PRESS.desk}</span>
-            <span>{PRESS.city}</span>
+            <span>City desk</span>
+            <span>Late edition</span>
           </div>
-          <p className="np-headline">{PRESS.coverLead}</p>
+          <p className="np-headline">CITY WAKES TO A QUIETER HORIZON AFTER THE STORM</p>
           <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
             <div className="np-figure" />
             <Lines n={9} />
@@ -62,12 +52,12 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    case "story":
+    case "pressFloor":
       return (
         <div className="np">
-          <p className="np-eyebrow">{PRESS.storyEyebrow}</p>
+          <p className="np-eyebrow">Inside the archive</p>
           <div className="np-rule" />
-          <p className="np-headline">{PRESS.storyLead}</p>
+          <p className="np-headline">NOTES FROM A LONG WEEK ON THE PRINTING FLOOR</p>
           <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
             <Lines n={12} />
             <Lines n={12} />
@@ -80,30 +70,30 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    case "figure":
+    case "photoPlate":
       return (
         <div className="np">
           <p className="np-eyebrow np-between">
-            <span>{PRESS.figureEyebrow}</span>
+            <span>Photo plate</span>
             <span>p. 07</span>
           </p>
           <div className="np-rule" />
           <div className="np-figure np-figure-wide" />
-          <p className="np-caption">{PRESS.figureCaption}</p>
+          <p className="np-caption">Press room, early light.</p>
           <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
             <Lines n={8} />
             <Lines n={8} />
           </div>
         </div>
       );
-    case "quote":
+    case "marginNote":
       return (
         <div className="np">
           <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
             <Lines n={14} />
             <div>
               <div className="np-rule np-rule-thick" />
-              <p className="np-quote">“{PRESS.quote}”</p>
+              <p className="np-quote">“Ink still drying. Hold the page by the edges.”</p>
               <div className="np-rule" />
               <Lines n={5} />
             </div>
@@ -115,21 +105,23 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    case "index":
+    case "morningBrief":
       return (
         <div className="np">
           <p className="np-eyebrow np-between">
-            <span>{PRESS.indexTitle}</span>
-            <span>{PRESS.issue}</span>
+            <span>Today’s brief</span>
+            <span>Sec. A</span>
           </p>
           <div className="np-rule np-rule-thick" />
           <ul className="np-list">
-            {PRESS.indexItems.map((item, i) => (
-              <li key={item} className="np-row">
-                <span>{item}</span>
-                <span>{String(i + 1).padStart(2, "0")}</span>
-              </li>
-            ))}
+            {["Weather & tide", "Market ledger", "Letters desk", "Classifieds", "Sports wrap"].map(
+              (item, i) => (
+                <li key={item} className="np-row">
+                  <span>{item}</span>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                </li>
+              ),
+            )}
           </ul>
           <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
             <Lines n={6} />
@@ -137,12 +129,71 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    // Home-shaped sketch with press copy — not the site's own lines.
+    case "harborWatch":
+      return (
+        <div className="np">
+          <p className="np-eyebrow">Harbor watch</p>
+          <div className="np-rule" />
+          <p className="np-headline">FOG LIFTS OVER THE NORTH PIER BEFORE NOON</p>
+          <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
+            <Lines n={11} />
+            <Lines n={11} />
+            <Lines n={11} />
+          </div>
+          <div className="np-rule" />
+          <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
+            <Lines n={6} />
+            <Lines n={6} />
+          </div>
+        </div>
+      );
+    case "atlasSpread":
+      return (
+        <div className="np">
+          <p className="np-eyebrow np-between">
+            <span>Atlas insert</span>
+            <span>p. 12</span>
+          </p>
+          <div className="np-rule" />
+          <div className="np-figure np-figure-wide" />
+          <p className="np-caption">Rail lines drawn before the first train.</p>
+          <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
+            <Lines n={7} />
+            <Lines n={7} />
+          </div>
+        </div>
+      );
+    case "colophon":
+      return (
+        <div className="np">
+          <div className="np-eyebrow np-between">
+            <span>Colophon</span>
+            <span>Sheet 09</span>
+          </div>
+          <div className="np-rule np-rule-thick" />
+          <p className="np-masthead">Set in Metal</p>
+          <div className="np-rule" />
+          <div className="np-eyebrow np-between">
+            <span>Type room</span>
+            <span>Night shift</span>
+          </div>
+          <p className="np-headline">EVERY MARK COUNTS WHEN THE FORM IS LOCKED</p>
+          <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
+            <div className="np-figure" />
+            <Lines n={8} />
+          </div>
+          <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
+            <Lines n={3} />
+            <Lines n={3} />
+            <Lines n={3} />
+          </div>
+        </div>
+      );
     case "home":
       return (
         <div className="np np-home">
           <div className="np-home-header">
-            <span className="np-home-brand">{PRESS.homeBrand}</span>
+            <span className="np-home-brand">The Signal</span>
             <span className="np-home-nav">
               <i />
               <i />
@@ -151,16 +202,16 @@ function Face({ variant }: { variant: Variant }) {
             </span>
           </div>
           <div className="np-rule" />
-          <p className="np-home-masthead">{PRESS.homePlace}</p>
+          <p className="np-home-masthead">Printed at dawn</p>
           <div className="np-home-hero">
             <div className="np-home-text">
               <p className="np-home-headline">
-                {PRESS.homeHeadline.map((line) => (
+                {["HOLD THE LINE", "UNTIL THE INK", "SETTLES CLEAN.", "TURN THE PAGE."].map((line) => (
                   <span key={line}>{line}</span>
                 ))}
               </p>
               <span className="np-home-underline" />
-              <p className="np-home-tagline">{PRESS.homeTagline}</p>
+              <p className="np-home-tagline">A morning paper for restless minds.</p>
               <Lines n={3} className="np-home-copy" />
               <div className="np-home-socials">
                 <span />
@@ -185,16 +236,42 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
+    case "closingMark":
+      return (
+        <div className="np">
+          <p className="np-eyebrow np-between">
+            <span>End matter</span>
+            <span>p. 16</span>
+          </p>
+          <div className="np-rule np-rule-thick" />
+          <ul className="np-list">
+            {["Publisher’s note", "Correction desk", "Paper stock", "Subscription", "Press credits"].map(
+              (item, i) => (
+                <li key={item} className="np-row">
+                  <span>{item}</span>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                </li>
+              ),
+            )}
+          </ul>
+          <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
+            <Lines n={5} />
+            <Lines n={5} />
+          </div>
+          <div className="np-rule" />
+          <p className="np-caption">Fold once. Leave the rest for morning.</p>
+        </div>
+      );
   }
 }
 
-/** [front, back] for each sheet, cover first. */
+/** Ten unique faces — no layout/copy reused across the spread. */
 const SHEETS: [Variant, Variant][] = [
-  ["cover", "story"],
-  ["figure", "quote"],
-  ["index", "story"],
-  ["figure", "cover"],
-  ["home", "index"],
+  ["cover", "pressFloor"],
+  ["photoPlate", "marginNote"],
+  ["morningBrief", "harborWatch"],
+  ["atlasSpread", "colophon"],
+  ["home", "closingMark"],
 ];
 
 /** Sheets that turn before the site is revealed; the last stays as the right page. */
