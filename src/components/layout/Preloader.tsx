@@ -391,17 +391,12 @@ export function Preloader() {
       };
 
       const armZoom = () => {
-        // Keep geo from siteIntoWindow (large cover / small inset) — only refresh leaf rect.
-        if (frontPage) {
-          const rect = frontPage.getBoundingClientRect();
-          if (rect.width >= 8 && rect.height >= 8) {
-            const vw = window.visualViewport?.width ?? window.innerWidth;
-            const homeH = Math.max(geo.clipH, 1);
-            geo.x = rect.left + (rect.width - vw * geo.scale) / 2;
-            geo.y = rect.top + (rect.height - homeH * geo.scale) / 2;
-            frontPage.style.setProperty("--hero-h", `${rect.height}px`);
-          }
-        }
+        if (!frontPage) return;
+        const rect = frontPage.getBoundingClientRect();
+        const vw = window.visualViewport?.width ?? window.innerWidth;
+        geo.scale = Math.max(rect.width / Math.max(vw, 1), 0.0001);
+        geo.x = rect.left;
+        geo.y = rect.top;
         if (site) {
           gsap.set(site, {
             transformOrigin: "0 0",
@@ -411,7 +406,7 @@ export function Preloader() {
             force3D: true,
           });
         }
-        const face = frontPage?.querySelector<HTMLElement>(".sheet-face-window");
+        const face = frontPage.querySelector<HTMLElement>(".sheet-face-window");
         if (face) gsap.set(face, { borderColor: "transparent" });
         syncBorderToSite();
       };

@@ -387,23 +387,6 @@ html.motion .preloader {
   background: transparent;
 }
 
-/* Large screens: tighten hero spacing while framed in the newspaper leaf. */
-@media (min-width: 1024px) {
-  .preloader.is-window ~ [data-site] #home [data-hero="masthead"] {
-    padding-top: 0.35rem !important;
-  }
-
-  .preloader.is-window ~ [data-site] #home .grid {
-    gap: 1.25rem !important;
-    padding-top: 1.25rem !important;
-    padding-bottom: 1.25rem !important;
-  }
-
-  .preloader.is-window ~ [data-site] #home .ticker-track {
-    display: none !important;
-  }
-}
-
 .np-window {
   gap: 0;
   padding: 0;
@@ -411,10 +394,7 @@ html.motion .preloader {
 
 .np-window-hero {
   flex: none;
-  width: 100%;
-  height: var(--hero-h, 100%);
-  max-height: 100%;
-  overflow: hidden;
+  height: var(--hero-h, 58%);
 }
 
 .np-window-body {
