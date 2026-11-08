@@ -352,12 +352,15 @@ html.motion .preloader {
   display: grid;
   place-items: center;
   padding: 1.25rem clamp(0.75rem, 2.5vw, 2.5rem) 0.75rem;
+  perspective: 2000px;
+  perspective-origin: 50% 45%;
 }
 
 .preloader-paper {
   position: relative;
   width: calc(var(--sheet-w) * 2);
   height: var(--sheet-h);
+  transform-style: preserve-3d;
 }
 
 /*
@@ -585,16 +588,39 @@ html.motion .preloader {
   container-type: inline-size;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
   box-shadow: 0 1px 0 rgb(0 0 0 / 0.04);
 }
 
-/* Fake lighting while the page turns, darkest along the spine. */
+/* Inner leaf bend so the free edge lags the spine (paper curl). */
+.sheet-curl {
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  will-change: transform;
+}
+
+/* Spine shade + a soft specular band that sells the curve. */
 .sheet-face::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(to right, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.08) 45%, transparent 75%);
+  z-index: 2;
+  background:
+    linear-gradient(
+      to right,
+      rgb(0 0 0 / 0.55) 0%,
+      rgb(0 0 0 / 0.18) 28%,
+      rgb(0 0 0 / 0.04) 55%,
+      transparent 78%
+    ),
+    linear-gradient(
+      105deg,
+      transparent 46%,
+      rgb(255 255 255 / 0.22) 52%,
+      transparent 60%
+    );
   opacity: var(--shade);
 }
 
@@ -604,7 +630,20 @@ html.motion .preloader {
 
 /* The back face is mirrored, so its spine is on the right. */
 .sheet-face-back::after {
-  background: linear-gradient(to left, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.08) 45%, transparent 75%);
+  background:
+    linear-gradient(
+      to left,
+      rgb(0 0 0 / 0.55) 0%,
+      rgb(0 0 0 / 0.18) 28%,
+      rgb(0 0 0 / 0.04) 55%,
+      transparent 78%
+    ),
+    linear-gradient(
+      -105deg,
+      transparent 46%,
+      rgb(255 255 255 / 0.22) 52%,
+      transparent 60%
+    );
 }
 
 /* Page content — sizes follow the sheet via container units. */

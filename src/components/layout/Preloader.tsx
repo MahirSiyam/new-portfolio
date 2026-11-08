@@ -220,18 +220,22 @@ export function Preloader() {
       const counterEl = root.querySelector<HTMLElement>("[data-counter]");
       const counter = { value: 0 };
 
-      const FLIP = 0.72;
-      const GAP = 0.5;
+      const FLIP = 0.95;
+      const GAP = 0.55;
 
       const paperWidth = (paper[0] as HTMLElement | undefined)?.offsetWidth ?? 800;
+      const lift = Math.min(90, paperWidth * 0.14);
+      gsap.set(paper, { transformPerspective: Math.max(1800, paperWidth * 1.8) });
       gsap.set(sheets, {
-        transformPerspective: Math.max(1600, paperWidth * 1.6),
         transformOrigin: "left center",
+        force3D: true,
+        z: 0.01,
       });
+      gsap.set(q(".sheet-curl"), { transformOrigin: "left center", force3D: true });
       sheets.forEach((sheet, i) => gsap.set(sheet, { zIndex: sheets.length - i }));
 
       const tl = gsap.timeline({
-        defaults: { ease: EASE.expo },
+        defaults: { ease: EASE.expo, force3D: true },
         onComplete: () => {
           html.style.overflow = prevOverflow;
           setHidden(true);
@@ -251,11 +255,34 @@ export function Preloader() {
 
       for (let i = 0; i < FLIPS; i++) {
         const sheet = sheets[i];
+        const curls = sheet.querySelectorAll<HTMLElement>(".sheet-curl");
+        // Natural paper turn: page lifts toward the camera, free edge lags via
+        // an inner curl, shade peaks when the leaf is edge-on, then settles.
         tl.set(sheet, { zIndex: 100 }, t)
-          .to(sheet, { rotateY: -180, duration: FLIP, ease: "power2.inOut" }, t)
-          .to(sheet, { "--shade": 0.55, duration: FLIP / 2, ease: "sine.in" }, t)
-          .to(sheet, { "--shade": 0, duration: FLIP / 2, ease: "sine.out" }, t + FLIP / 2)
-          .set(sheet, { zIndex: 50 + i }, t + FLIP);
+          .to(
+            sheet,
+            {
+              keyframes: [
+                { rotateY: -100, z: lift, duration: FLIP * 0.55, ease: "power2.in" },
+                { rotateY: -180, z: 0, duration: FLIP * 0.45, ease: "power2.out" },
+              ],
+            },
+            t,
+          )
+          .to(
+            curls,
+            {
+              keyframes: [
+                { rotateY: 14, duration: FLIP * 0.45, ease: "sine.out" },
+                { rotateY: 0, duration: FLIP * 0.55, ease: "sine.in" },
+              ],
+            },
+            t,
+          )
+          .to(sheet, { "--shade": 0.7, duration: FLIP * 0.5, ease: "sine.out" }, t)
+          .to(sheet, { "--shade": 0, duration: FLIP * 0.5, ease: "sine.in" }, t + FLIP * 0.5)
+          .set(sheet, { zIndex: 50 + i, z: 0 }, t + FLIP)
+          .set(curls, { rotateY: 0 }, t + FLIP);
         t += GAP;
       }
 
@@ -328,10 +355,14 @@ export function Preloader() {
           {SHEETS.map(([front, back], i) => (
             <div key={i} data-sheet className="sheet" style={{ zIndex: SHEETS.length - i }}>
               <div className="sheet-face">
-                <Face variant={front} />
+                <div className="sheet-curl">
+                  <Face variant={front} />
+                </div>
               </div>
               <div className="sheet-face sheet-face-back">
-                <Face variant={back} />
+                <div className="sheet-curl">
+                  <Face variant={back} />
+                </div>
               </div>
             </div>
           ))}
