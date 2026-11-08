@@ -1,13 +1,32 @@
 "use client";
 
 import { useRef, useState, type CSSProperties } from "react";
-import { about, personalInfo } from "@/data/portfolio";
 import { gsap, useGSAP, EASE, MEDIA } from "@/lib/animations";
 import { isPreloaderDone, markPreloaderDone } from "@/lib/preloader";
 
 /* ------------------------------------------------------------------ */
-/* Newspaper page content (decorative, scaled with container units)    */
+/* Decorative newsprint — intentionally different from site copy       */
 /* ------------------------------------------------------------------ */
+
+const PRESS = {
+  issue: "No. 214",
+  section: "Morning Dispatch",
+  masthead: "The Daily Signal",
+  desk: "City desk",
+  city: "Late edition",
+  coverLead: "CITY WAKES TO A QUIETER HORIZON AFTER THE STORM",
+  storyEyebrow: "Inside the archive",
+  storyLead: "NOTES FROM A LONG WEEK ON THE PRINTING FLOOR",
+  figureEyebrow: "Photo plate",
+  figureCaption: "Press room, early light.",
+  quote: "Ink still drying. Hold the page by the edges.",
+  indexTitle: "Today’s brief",
+  indexItems: ["Weather & tide", "Market ledger", "Letters desk", "Classifieds", "Sports wrap"],
+  homeBrand: "The Signal",
+  homePlace: "Printed at dawn",
+  homeHeadline: ["HOLD THE LINE", "UNTIL THE INK", "SETTLES CLEAN.", "TURN THE PAGE."],
+  homeTagline: "A morning paper for restless minds.",
+};
 
 type Variant = "cover" | "story" | "figure" | "quote" | "index" | "home";
 
@@ -16,24 +35,22 @@ function Lines({ n, className = "" }: { n: number; className?: string }) {
 }
 
 function Face({ variant }: { variant: Variant }) {
-  const info = personalInfo;
-
   switch (variant) {
     case "cover":
       return (
         <div className="np">
           <div className="np-eyebrow np-between">
-            <span>{info.edition.volume}</span>
-            <span>{info.edition.label}</span>
+            <span>{PRESS.issue}</span>
+            <span>{PRESS.section}</span>
           </div>
           <div className="np-rule np-rule-thick" />
-          <p className="np-masthead">{info.name}</p>
+          <p className="np-masthead">{PRESS.masthead}</p>
           <div className="np-rule" />
           <div className="np-eyebrow np-between">
-            <span>{info.title}</span>
-            <span>{info.location}</span>
+            <span>{PRESS.desk}</span>
+            <span>{PRESS.city}</span>
           </div>
-          <p className="np-headline">{info.headline.slice(0, 2).join(" ")}</p>
+          <p className="np-headline">{PRESS.coverLead}</p>
           <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
             <div className="np-figure" />
             <Lines n={9} />
@@ -48,9 +65,9 @@ function Face({ variant }: { variant: Variant }) {
     case "story":
       return (
         <div className="np">
-          <p className="np-eyebrow">{about.eyebrow}</p>
+          <p className="np-eyebrow">{PRESS.storyEyebrow}</p>
           <div className="np-rule" />
-          <p className="np-headline">{about.headline.join(" ")}</p>
+          <p className="np-headline">{PRESS.storyLead}</p>
           <div className="np-cols" style={{ "--cols": 3 } as CSSProperties}>
             <Lines n={12} />
             <Lines n={12} />
@@ -67,12 +84,12 @@ function Face({ variant }: { variant: Variant }) {
       return (
         <div className="np">
           <p className="np-eyebrow np-between">
-            <span>Selected work</span>
-            <span>p. 03</span>
+            <span>{PRESS.figureEyebrow}</span>
+            <span>p. 07</span>
           </p>
           <div className="np-rule" />
           <div className="np-figure np-figure-wide" />
-          <p className="np-caption">{info.tagline}</p>
+          <p className="np-caption">{PRESS.figureCaption}</p>
           <div className="np-cols" style={{ "--cols": 2 } as CSSProperties}>
             <Lines n={8} />
             <Lines n={8} />
@@ -86,7 +103,7 @@ function Face({ variant }: { variant: Variant }) {
             <Lines n={14} />
             <div>
               <div className="np-rule np-rule-thick" />
-              <p className="np-quote">“{info.headline[0]}”</p>
+              <p className="np-quote">“{PRESS.quote}”</p>
               <div className="np-rule" />
               <Lines n={5} />
             </div>
@@ -102,12 +119,12 @@ function Face({ variant }: { variant: Variant }) {
       return (
         <div className="np">
           <p className="np-eyebrow np-between">
-            <span>The index</span>
-            <span>{info.edition.volume}</span>
+            <span>{PRESS.indexTitle}</span>
+            <span>{PRESS.issue}</span>
           </p>
           <div className="np-rule np-rule-thick" />
           <ul className="np-list">
-            {info.ticker.map((item, i) => (
+            {PRESS.indexItems.map((item, i) => (
               <li key={item} className="np-row">
                 <span>{item}</span>
                 <span>{String(i + 1).padStart(2, "0")}</span>
@@ -120,12 +137,12 @@ function Face({ variant }: { variant: Variant }) {
           </div>
         </div>
       );
-    // Home sketch: real headlines stay visible; copy, image and CTAs are blank.
+    // Home-shaped sketch with press copy — not the site's own lines.
     case "home":
       return (
         <div className="np np-home">
           <div className="np-home-header">
-            <span className="np-home-brand">{info.shortName}</span>
+            <span className="np-home-brand">{PRESS.homeBrand}</span>
             <span className="np-home-nav">
               <i />
               <i />
@@ -134,16 +151,16 @@ function Face({ variant }: { variant: Variant }) {
             </span>
           </div>
           <div className="np-rule" />
-          <p className="np-home-masthead">{info.location}</p>
+          <p className="np-home-masthead">{PRESS.homePlace}</p>
           <div className="np-home-hero">
             <div className="np-home-text">
               <p className="np-home-headline">
-                {info.headline.map((line) => (
+                {PRESS.homeHeadline.map((line) => (
                   <span key={line}>{line}</span>
                 ))}
               </p>
               <span className="np-home-underline" />
-              <p className="np-home-tagline">{info.tagline}</p>
+              <p className="np-home-tagline">{PRESS.homeTagline}</p>
               <Lines n={3} className="np-home-copy" />
               <div className="np-home-socials">
                 <span />
