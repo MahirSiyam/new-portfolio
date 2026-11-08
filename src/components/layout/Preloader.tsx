@@ -368,22 +368,55 @@ export function Preloader() {
       const shadow = q("[data-shadow]");
       const ZOOM = isSmall ? 1.1 : 1.3;
       const zoomFrame = root.querySelector<HTMLElement>("[data-zoom-frame]");
-      const placeZoomFrame = () => {
-        if (!frontPage || !zoomFrame) return;
-        const rect = frontPage.getBoundingClientRect();
+
+      // Border follows the site’s live transform every frame — no separate tween lag.
+      const syncBorderToSite = () => {
+        if (!zoomFrame || !site) return;
+        const vw = window.visualViewport?.width ?? window.innerWidth;
+        const vh = window.visualViewport?.height ?? window.innerHeight;
+        const s = Number(gsap.getProperty(site, "scale")) || geo.scale;
+        const x = Number(gsap.getProperty(site, "x"));
+        const y = Number(gsap.getProperty(site, "y"));
         gsap.set(zoomFrame, {
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
+          left: x,
+          top: y,
+          width: vw * s,
+          height: Math.min(geo.clipH * s, vh),
+          x: 0,
+          y: 0,
+          scale: 1,
           opacity: 1,
+          clearProps: "",
         });
-        // Hide the CSS leaf border so only the zooming frame is visible.
-        const face = frontPage.querySelector<HTMLElement>(".sheet-face-window");
-        if (face) gsap.set(face, { borderColor: "transparent" });
       };
 
-      tl.add(placeZoomFrame, zoom)
+      const armZoom = () => {
+        // Keep geo from siteIntoWindow (large cover / small inset) — only refresh leaf rect.
+        if (frontPage) {
+          const rect = frontPage.getBoundingClientRect();
+          if (rect.width >= 8 && rect.height >= 8) {
+            const vw = window.visualViewport?.width ?? window.innerWidth;
+            const homeH = Math.max(geo.clipH, 1);
+            geo.x = rect.left + (rect.width - vw * geo.scale) / 2;
+            geo.y = rect.top + (rect.height - homeH * geo.scale) / 2;
+            frontPage.style.setProperty("--hero-h", `${rect.height}px`);
+          }
+        }
+        if (site) {
+          gsap.set(site, {
+            transformOrigin: "0 0",
+            x: geo.x,
+            y: geo.y,
+            scale: geo.scale,
+            force3D: true,
+          });
+        }
+        const face = frontPage?.querySelector<HTMLElement>(".sheet-face-window");
+        if (face) gsap.set(face, { borderColor: "transparent" });
+        syncBorderToSite();
+      };
+
+      tl.add(armZoom, zoom)
         .set(frontPage, {
           zIndex: 200,
           transformOrigin: "0 0",
@@ -393,7 +426,7 @@ export function Preloader() {
         }, zoom)
         .to([...turned, ...shadow, ...q("[data-window-lines]")], {
           autoAlpha: 0,
-          duration: 0.4,
+          duration: 0.35,
           ease: "power2.out",
         }, zoom)
         .to(
@@ -408,17 +441,16 @@ export function Preloader() {
           },
           zoom,
         )
-        .to(site ?? [], { x: 0, y: 0, scale: 1, duration: ZOOM, ease: "power3.inOut", force3D: true }, zoom)
-        // Border frame grows with the same motion as the site zoom.
         .to(
-          zoomFrame ?? [],
+          site ?? [],
           {
-            left: 0,
-            top: 0,
-            width: () => window.visualViewport?.width ?? window.innerWidth,
-            height: () => window.visualViewport?.height ?? window.innerHeight,
+            x: 0,
+            y: 0,
+            scale: 1,
             duration: ZOOM,
             ease: "power3.inOut",
+            force3D: true,
+            onUpdate: syncBorderToSite,
           },
           zoom,
         )
@@ -426,9 +458,12 @@ export function Preloader() {
           geo,
           {
             clipH: () => window.visualViewport?.height ?? window.innerHeight,
-            duration: isSmall ? ZOOM * 0.6 : ZOOM,
-            ease: "power2.out",
-            onUpdate: applyClip,
+            duration: ZOOM,
+            ease: "power3.inOut",
+            onUpdate: () => {
+              applyClip();
+              syncBorderToSite();
+            },
           },
           zoom,
         )
@@ -436,9 +471,9 @@ export function Preloader() {
           releaseSite();
           html.style.overflow = prevOverflow;
         }, zoom + ZOOM)
-        .to(zoomFrame ?? [], { opacity: 0, duration: 0.3, ease: "power2.out" }, zoom + ZOOM - 0.1)
-        .to(frontPage, { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, zoom + ZOOM - 0.1)
-        .to(root, { autoAlpha: 0, duration: 0.4, ease: "power2.out" }, zoom + ZOOM);
+        .to(zoomFrame ?? [], { opacity: 0, duration: 0.28, ease: "power2.out" }, zoom + ZOOM - 0.12)
+        .to(frontPage, { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, zoom + ZOOM - 0.12)
+        .to(root, { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, zoom + ZOOM);
 
       return () => {
         releaseSite();
